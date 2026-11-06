@@ -1,12 +1,11 @@
 /* ==========================================================================
-   Responsive Breakpoints & Layout Adaptations
-   Mobile-first: Base handles <= 767px (375px target).
-   Tablet: min-width: 768px
-   Desktop: min-width: 1024px & 1280px
+   Responsive Breakpoints & Layout Adaptations (DESIGN.md Section 6)
+   Breakpoints: 480px, 768px, 1024px, 1280px
+   Mobile-first: Base handles mobile (375px baseline)
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   Mobile Viewport Styles (<= 767px)
+   Mobile Viewports (< 768px)
    -------------------------------------------------------------------------- */
 @media (max-width: 767px) {
   .btn-menu-toggle {
@@ -15,10 +14,17 @@
     justify-content: center;
     width: 44px;
     height: 44px;
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface-elevated);
-    border: 1px solid var(--color-border);
-    color: var(--color-text-primary);
+    border-radius: var(--radius-pill);
+    background-color: var(--surface);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    transition: transform var(--dur-fast) var(--ease-spring), border-color var(--dur-fast) ease;
+  }
+
+  .btn-menu-toggle:hover {
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    transform: translateY(-2px);
   }
 
   .site-nav {
@@ -27,63 +33,88 @@
     left: 0;
     width: 100%;
     height: calc(100vh - var(--header-height));
-    background-color: var(--color-surface);
-    border-top: 1px solid var(--color-border);
-    padding: 1.5rem 1.25rem;
+    height: calc(100dvh - var(--header-height));
+    background-color: var(--bg-elevated);
+    border-top: 1px solid var(--border);
+    padding: var(--space-5) var(--space-4);
     flex-direction: column;
     align-items: flex-start;
-    gap: 1.5rem;
+    gap: var(--space-5);
     transform: translateY(-100%);
     opacity: 0;
     pointer-events: none;
-    transition: transform var(--transition-normal), opacity var(--transition-normal);
+    transition: transform var(--dur-base) var(--ease-spring), opacity var(--dur-base) ease;
     z-index: var(--z-drawer);
     overflow-y: auto;
-    padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
   }
 
   .site-nav.is-open {
     transform: translateY(0);
     opacity: 1;
     pointer-events: auto;
-    box-shadow: 0 10px 25px var(--color-shadow);
+    box-shadow: var(--shadow-md);
   }
 
   .nav-list {
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 
   .nav-link {
     display: block;
     width: 100%;
-    padding: 0.75rem 0.5rem;
-    font-size: 1.125rem;
-    border-radius: var(--radius-sm);
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--fs-md);
+    border-radius: var(--radius-md);
   }
 
   .header-actions {
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 
   .demo-badge {
-    display: none; /* Keep header compact on 375px screens */
+    display: none;
   }
 
   .hero-section {
-    padding-block: 2.25rem 2rem;
-    text-align: center;
+    padding-block: var(--space-6) var(--space-7);
+    text-align: left;
   }
 
-  .section-title {
-    font-size: 1.5rem;
+  .hero-actions {
+    width: 100%;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+  }
+
+  .modal-dialog {
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
   }
 }
 
 /* --------------------------------------------------------------------------
-   Tablet Viewport Styles (>= 768px)
+   Small Devices & Above (>= 480px)
+   -------------------------------------------------------------------------- */
+@media (min-width: 480px) {
+  .hero-actions .btn {
+    width: auto;
+  }
+
+  .newsletter-input-group {
+    flex-direction: row;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Tablet Viewports (>= 768px)
    -------------------------------------------------------------------------- */
 @media (min-width: 768px) {
   .demo-badge {
@@ -93,6 +124,7 @@
   .events-grid,
   .featured-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-5);
   }
 
   .footer-grid {
@@ -105,42 +137,48 @@
     text-align: left;
   }
 
-  .hero-section {
-    padding-block: 4rem 3rem;
-  }
-
-  .section-title {
-    font-size: 2rem;
+  .modal-dialog {
+    max-width: 600px;
+    height: auto;
+    max-height: 90vh;
+    border-radius: var(--radius-lg);
   }
 }
 
 /* --------------------------------------------------------------------------
-   Desktop Viewport Styles (>= 1024px)
+   Desktop Viewports (>= 1024px)
    -------------------------------------------------------------------------- */
 @media (min-width: 1024px) {
-  .events-grid,
-  .featured-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.75rem;
+  .container {
+    padding-inline: var(--space-6);
   }
 
   .hero-grid {
-    display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 3rem;
-    align-items: center;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: var(--space-8);
+  }
+
+  .events-grid,
+  .featured-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
   }
 
   .footer-grid {
     grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
   }
+
+  .modal-dialog {
+    max-width: 720px;
+  }
 }
 
 /* --------------------------------------------------------------------------
-   Wide Desktop Viewport Styles (>= 1280px)
+   Wide Desktop Viewports (>= 1280px)
    -------------------------------------------------------------------------- */
 @media (min-width: 1280px) {
-  .container {
-    padding-inline: 1.5rem;
+  .events-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-5);
   }
 }

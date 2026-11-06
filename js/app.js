@@ -10,7 +10,7 @@ import {
 } from './storage.js';
 
 /**
- * Initializes and manages Dark / Light color theme.
+ * Initializes and manages Dark / Light color theme via data-theme attribute (DESIGN.md Section 7).
  */
 function initTheme() {
   const themeToggleBtn = document.getElementById('theme-toggle');
@@ -18,19 +18,18 @@ function initTheme() {
   const moonIcon = document.getElementById('theme-icon-moon');
 
   const storedTheme = getStoredTheme();
-  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const isDark = storedTheme === 'dark' || (!storedTheme && systemPrefersDark);
+  const systemPrefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+  const initialTheme = storedTheme ? storedTheme : (systemPrefersLight ? 'light' : 'dark');
 
-  function applyTheme(dark) {
-    if (dark) {
-      document.documentElement.classList.add('dark');
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') {
       if (sunIcon) sunIcon.classList.remove('sr-only');
       if (moonIcon) moonIcon.classList.add('sr-only');
       if (themeToggleBtn) {
         themeToggleBtn.setAttribute('aria-label', 'Switch to light theme');
       }
     } else {
-      document.documentElement.classList.remove('dark');
       if (sunIcon) sunIcon.classList.add('sr-only');
       if (moonIcon) moonIcon.classList.remove('sr-only');
       if (themeToggleBtn) {
@@ -40,13 +39,14 @@ function initTheme() {
   }
 
   // Apply initial theme
-  applyTheme(isDark);
+  applyTheme(initialTheme);
 
   if (themeToggleBtn) {
     themeToggleBtn.addEventListener('click', () => {
-      const willBeDark = !document.documentElement.classList.contains('dark');
-      applyTheme(willBeDark);
-      setStoredTheme(willBeDark ? 'dark' : 'light');
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      applyTheme(newTheme);
+      setStoredTheme(newTheme);
     });
   }
 }
