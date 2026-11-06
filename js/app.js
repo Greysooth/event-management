@@ -29,6 +29,14 @@ import {
   validatePhone
 } from './registration.js';
 
+import {
+  initFilters,
+  filterEvents,
+  resetFilters,
+  getCurrentFilterState,
+  updateResultsCount
+} from './filters.js';
+
 /**
  * Initializes and manages Dark / Light color theme via data-theme attribute (DESIGN.md Section 7).
  */
@@ -202,14 +210,39 @@ export function initEventsDisplay() {
     renderEventsGrid(featuredEvents, featuredContainer);
   }
 
-  // 3. All Events Section
+  // 3. All Events Section (delegated to search, filter & sort manager)
+  renderFilteredEvents();
+}
+
+/**
+ * Applies active search query, category filter pill, and sorting criteria to the All Events catalog.
+ * Renders filtered cards or empty state, and updates counters.
+ */
+export function renderFilteredEvents() {
+  const allEvents = getAllEventsWithCapacity();
+  const filterState = getCurrentFilterState();
+  const filteredEvents = filterEvents(allEvents, filterState);
+
   const allEventsContainer = document.getElementById('events-grid');
+  const emptyStateEl = document.getElementById('empty-state');
   const eventsCountLabel = document.getElementById('events-count-label');
+
   if (allEventsContainer) {
-    renderEventsGrid(allEvents, allEventsContainer);
+    if (filteredEvents.length === 0) {
+      allEventsContainer.innerHTML = '';
+      if (emptyStateEl) emptyStateEl.classList.remove('hidden');
+    } else {
+      if (emptyStateEl) emptyStateEl.classList.add('hidden');
+      renderEventsGrid(filteredEvents, allEventsContainer);
+    }
   }
+
+  updateResultsCount(filteredEvents.length, allEvents.length);
+
   if (eventsCountLabel) {
-    eventsCountLabel.textContent = `Explore ${allEvents.length} scheduled events across Technology, Music & Arts, Business & Networking, and Sports & Fitness`;
+    const activeCat = filterState.category === 'all' ? 'All Categories' : filterState.category;
+    const queryNotice = filterState.searchQuery ? ` matching "${filterState.searchQuery}"` : '';
+    eventsCountLabel.textContent = `Showing ${filteredEvents.length} of ${allEvents.length} events (${activeCat}${queryNotice})`;
   }
 }
 
@@ -402,4 +435,17 @@ document.addEventListener('DOMContentLoaded', () => {
   initEventsDisplay();
   initModalListeners();
   initNewsletter();
+
+  // Initialize search, category filters, and sort controls
+  const resetBtn = document.getElementById('btn-reset-filters');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      resetFilters();
+      document.getElementById('event-search')?.focus();
+    });
+  }
+
+  initFilters(() => {
+    renderFilteredEvents();
+  });
 });

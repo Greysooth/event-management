@@ -455,11 +455,11 @@ Registration: { id, eventId, name, email, phone, registeredAt }
   - Events grid displays 3 columns (`repeat(3, 1fr)`).
 
 ### 6.2 Search, Filtering & Sorting
-- [ ] **Category Filter**: Clicking each category button filters the cards to that category only; clicking "All" shows all 8 events.
-- [ ] **Search Input**: Real-time search filters by title, venue, or short description (case-insensitive).
-- [ ] **Combined Filtering**: Filtering by "Technology" and searching "Cloud" displays only "Global AI & Cloud Architecture Summit".
-- [ ] **Empty State**: Entering a query with no matches displays `#empty-state`; clicking "Reset Filters" clears input and restores full catalog.
-- [ ] **Sort Dropdown**: Sorting by "Date: Soonest First" orders events chronologically; "Capacity: Most Available" orders by derived spots remaining.
+- [x] **Category Filter**: Clicking each category button filters the cards to that category only; clicking "All" shows all 8 events.
+- [x] **Search Input**: Real-time search filters by title, venue, or short description (case-insensitive).
+- [x] **Combined Filtering**: Filtering by "Technology" and searching "Cloud" displays only "Global AI & Cloud Architecture Summit".
+- [x] **Empty State**: Entering a query with no matches displays `#empty-state`; clicking "Reset Filters" clears input and restores full catalog.
+- [x] **Sort Dropdown**: Sorting by "Date: Soonest First" orders events chronologically; "Capacity: Most Available" orders by derived spots remaining.
 
 ### 6.3 Event Details Modal & Live Countdown Timers [Bonus]
 - [ ] **Detail Modal**:

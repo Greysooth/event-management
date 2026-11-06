@@ -135,13 +135,6 @@
       </div>
     </section>
 
-    <!-- Controls Section Scaffold (Search, Filters, Sort) -->
-    <section id="controls" class="controls-section" aria-label="Event search and filters">
-      <div class="container" id="controls-container">
-        <!-- Phase 3 will render interactive search, category pills, and sort controls -->
-      </div>
-    </section>
-
     <!-- Featured Events Showcase Scaffold -->
     <section id="featured" class="featured-section" aria-labelledby="featured-title">
       <div class="container">
@@ -153,6 +146,94 @@
         </div>
         <div id="featured-grid" class="featured-grid" aria-live="polite">
           <!-- Phase 2 will render featured event cards here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Controls Section (Search, Filters, Sort) -->
+    <section id="controls" class="controls-section" aria-label="Event search and filters">
+      <div class="container" id="controls-container">
+        <div class="controls-bar">
+          <!-- Primary Row: Search Input & Sort Dropdown -->
+          <div class="controls-row-primary">
+            <!-- Search Bar -->
+            <div class="search-box">
+              <label for="event-search" class="sr-only">Search events by title, venue, or keyword</label>
+              <div class="search-input-wrapper">
+                <span class="search-icon" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                </span>
+                <input
+                  type="search"
+                  id="event-search"
+                  class="search-input"
+                  placeholder="Search events by title, venue, or keyword..."
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-describedby="filter-results-count"
+                />
+                <button
+                  type="button"
+                  id="search-clear-btn"
+                  class="search-clear-btn hidden"
+                  aria-label="Clear search query"
+                  title="Clear search query"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Sort By Selector -->
+            <div class="sort-box">
+              <label for="event-sort" class="sort-label mono">SORT:</label>
+              <div class="sort-select-wrapper">
+                <select id="event-sort" class="sort-select" aria-label="Sort events">
+                  <option value="date-asc" selected>Date: Soonest first</option>
+                  <option value="date-desc">Date: Furthest first</option>
+                  <option value="capacity-desc">Capacity: Most spots left</option>
+                  <option value="capacity-asc">Capacity: Fewest spots left</option>
+                  <option value="title-asc">Alphabetical (A - Z)</option>
+                  <option value="title-desc">Alphabetical (Z - A)</option>
+                </select>
+                <span class="sort-arrow" aria-hidden="true">▾</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Row: Category Filter Pills & Results Count -->
+          <div class="controls-row-secondary">
+            <div class="filter-pills-wrapper" role="group" aria-label="Filter events by category">
+              <div class="filter-pills-track" id="filter-pills">
+                <button type="button" class="filter-pill is-active" data-category="all" aria-pressed="true">
+                  <span>All Events</span>
+                </button>
+                <button type="button" class="filter-pill" data-category="Technology" aria-pressed="false">
+                  <span class="pill-dot tech-dot" aria-hidden="true"></span>
+                  <span>Technology</span>
+                </button>
+                <button type="button" class="filter-pill" data-category="Music & Arts" aria-pressed="false">
+                  <span class="pill-dot music-dot" aria-hidden="true"></span>
+                  <span>Music &amp; Arts</span>
+                </button>
+                <button type="button" class="filter-pill" data-category="Business & Networking" aria-pressed="false">
+                  <span class="pill-dot business-dot" aria-hidden="true"></span>
+                  <span>Business &amp; Networking</span>
+                </button>
+                <button type="button" class="filter-pill" data-category="Sports & Fitness" aria-pressed="false">
+                  <span class="pill-dot sports-dot" aria-hidden="true"></span>
+                  <span>Sports &amp; Fitness</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="filter-results-count" class="filter-results-count mono" aria-live="polite">
+              8 events found
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -174,7 +255,8 @@
 
         <!-- Empty State Component -->
         <div id="empty-state" class="empty-state hidden" role="status" aria-live="polite">
-          <h3 class="empty-state-title">No events match your criteria</h3>
+          <div class="empty-state-icon" aria-hidden="true">⚡</div>
+          <h3 class="empty-state-title">No events match that</h3>
           <p class="empty-state-text">Try adjusting your search keywords or switching category filters to view available events.</p>
           <button type="button" class="btn btn-primary" id="btn-reset-filters">Clear filters</button>
         </div>
