@@ -3,7 +3,7 @@
 ## Status
 - [x] Phase 0: Plan & Architecture Decisions Approved (Gate)
 - [x] Phase 1: Foundation (Semantic scaffold, design tokens, storage adapter, base responsive layout)
-- [ ] Phase 2: Events Display (Hero spotlight, event cards, detail modal, responsive grid)
+- [x] Phase 2: Events Display (Hero spotlight, event cards, detail modal, responsive grid)
 - [ ] Phase 3: Search, Filters & Sorting (Real-time search, category pills, sort dropdown, empty state)
 - [ ] Phase 4: Registration, Form Validation & Local Storage Management (Full a11y, duplicate checks, derived capacity)
 - [ ] Phase 5: Bonus Features & Polish (Dark/Light mode switch, live countdown timers, micro-animations)
