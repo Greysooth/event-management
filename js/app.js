@@ -1,6 +1,7 @@
 /**
- * Main Application Bootstrapper (Phase 2)
- * Coordinates theme, mobile navigation, event presentation, and detail modal dialogs.
+ * Main Application Bootstrapper (Phase 4)
+ * Coordinates theme, mobile navigation, event presentation, registration flow,
+ * validation feedback, and persistent local storage management.
  */
 
 import {
@@ -11,11 +12,22 @@ import {
 
 import {
   getAllEventsWithCapacity,
+  getEventById,
   renderEventsGrid,
   renderHeroSpotlight,
   openEventModal,
   closeEventModal
 } from './events.js';
+
+import {
+  renderRegistrationFormHTML,
+  handleRegistrationSubmit,
+  openMyRegistrationsModal,
+  closeMyRegistrationsModal,
+  validateName,
+  validateEmail,
+  validatePhone
+} from './registration.js';
 
 /**
  * Initializes and manages Dark / Light color theme via data-theme attribute (DESIGN.md Section 7).
@@ -202,26 +214,139 @@ export function initEventsDisplay() {
 }
 
 /**
- * Binds event delegation for opening and closing event detail modal dialogs.
+ * Mounts the registration form inside the event details modal.
+ * @param {string} eventId 
+ */
+function showRegistrationFormInModal(eventId) {
+  const container = document.getElementById('modal-registration-container');
+  if (!container) return;
+
+  container.innerHTML = renderRegistrationFormHTML(eventId);
+  const form = container.querySelector('#event-registration-form');
+  const nameInput = container.querySelector('#reg-name');
+  nameInput?.focus();
+
+  // Bind live input validation on blur & input
+  if (form) {
+    const bindLiveValidation = (input, validator) => {
+      const fieldName = input.name;
+      const errorEl = form.querySelector(`#err-${fieldName}`);
+      const check = () => {
+        const val = input.value;
+        const res = validator(val, eventId);
+        if (!res.isValid) {
+          input.classList.add('is-invalid');
+          input.classList.remove('is-valid');
+          if (errorEl) errorEl.textContent = res.error;
+        } else if (val.trim()) {
+          input.classList.remove('is-invalid');
+          input.classList.add('is-valid');
+          if (errorEl) errorEl.textContent = '';
+        } else {
+          input.classList.remove('is-invalid', 'is-valid');
+          if (errorEl) errorEl.textContent = '';
+        }
+      };
+
+      input.addEventListener('blur', check);
+      input.addEventListener('input', () => {
+        if (input.classList.contains('is-invalid')) {
+          check();
+        }
+      });
+    };
+
+    const nameIn = form.querySelector('[name="name"]');
+    const emailIn = form.querySelector('[name="email"]');
+    const phoneIn = form.querySelector('[name="phone"]');
+
+    if (nameIn) bindLiveValidation(nameIn, validateName);
+    if (emailIn) bindLiveValidation(emailIn, validateEmail);
+    if (phoneIn) bindLiveValidation(phoneIn, validatePhone);
+
+    // Form submit listener
+    form.addEventListener('submit', (e) => {
+      handleRegistrationSubmit(e, form, () => {
+        updateHeaderRegistrationCount();
+        initEventsDisplay();
+      });
+    });
+
+    // Cancel / Back button inside form
+    const cancelRegBtn = form.querySelector('#btn-cancel-reg-form');
+    cancelRegBtn?.addEventListener('click', () => {
+      const event = getEventById(eventId);
+      const isSoldOut = event?.derivedCapacity.isSoldOut;
+      container.innerHTML = `
+        <button type="button" class="btn btn-secondary" id="modal-cancel-btn">Close</button>
+        <button type="button" class="btn btn-primary" id="modal-register-action-btn" data-event-id="${eventId}" ${isSoldOut ? 'disabled aria-disabled="true"' : ''}>
+          ${isSoldOut ? 'Sold out' : 'Register for this event'}
+        </button>
+      `;
+      document.getElementById('modal-cancel-btn')?.addEventListener('click', closeEventModal);
+      document.getElementById('modal-register-action-btn')?.addEventListener('click', () => {
+        showRegistrationFormInModal(eventId);
+      });
+    });
+  }
+}
+
+/**
+ * Binds event delegation for opening, registering, and closing dialogs.
  */
 function initModalListeners() {
   const eventModal = document.getElementById('event-modal');
 
-  // Delegated click handling for "Details" and "Register" buttons across all cards
+  // Delegated click handling for "Details" and "Register" buttons
   document.addEventListener('click', (e) => {
-    const button = e.target.closest('.btn-event-details, .btn-event-register');
-    if (!button) return;
+    // 1. Open Event Details
+    const detailsBtn = e.target.closest('.btn-event-details');
+    if (detailsBtn) {
+      const eventId = detailsBtn.dataset.eventId;
+      if (eventId) {
+        openEventModal(eventId);
+      }
+      return;
+    }
 
-    const eventId = button.dataset.eventId;
-    if (eventId) {
-      openEventModal(eventId);
+    // 2. Direct Register button click on cards
+    const registerBtn = e.target.closest('.btn-event-register');
+    if (registerBtn) {
+      const eventId = registerBtn.dataset.eventId;
+      if (eventId) {
+        openEventModal(eventId);
+        showRegistrationFormInModal(eventId);
+      }
+      return;
+    }
+
+    // 3. Register button inside modal details view
+    const modalRegisterBtn = e.target.closest('#modal-register-action-btn');
+    if (modalRegisterBtn) {
+      const eventId = modalRegisterBtn.dataset.eventId;
+      if (eventId) {
+        showRegistrationFormInModal(eventId);
+      }
+      return;
     }
   });
 
-  if (eventModal) {
-    // Backdrop click dismisses dialog
-    eventModal.addEventListener('click', (e) => {
-      const rect = eventModal.getBoundingClientRect();
+  // Header "My Registrations" button click
+  const openMyRegsBtn = document.getElementById('open-my-registrations-btn');
+  if (openMyRegsBtn) {
+    openMyRegsBtn.addEventListener('click', () => {
+      openMyRegistrationsModal(() => {
+        updateHeaderRegistrationCount();
+        initEventsDisplay();
+      });
+    });
+  }
+
+  // Backdrop click dismisses modal dialogs
+  [eventModal, document.getElementById('my-registrations-modal'), document.getElementById('confirmation-modal')].forEach((dlg) => {
+    if (!dlg) return;
+    dlg.addEventListener('click', (e) => {
+      const rect = dlg.getBoundingClientRect();
       const isInDialog = (
         e.clientX >= rect.left &&
         e.clientX <= rect.right &&
@@ -229,16 +354,11 @@ function initModalListeners() {
         e.clientY <= rect.bottom
       );
       if (!isInDialog) {
-        closeEventModal();
+        if (dlg === eventModal) closeEventModal();
+        if (dlg.id === 'my-registrations-modal') closeMyRegistrationsModal();
       }
     });
-
-    // Native cancel event on Escape
-    eventModal.addEventListener('cancel', (e) => {
-      e.preventDefault();
-      closeEventModal();
-    });
-  }
+  });
 }
 
 /**

@@ -1573,6 +1573,276 @@ h6 {
 }
 
 /* ==========================================================================
+   Registration Form & Validation States (DESIGN.md Section 7)
+   ========================================================================== */
+
+.registration-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-top: var(--space-3);
+}
+
+.registration-form-title {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.registration-form-desc {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  position: relative;
+}
+
+.form-label {
+  font-family: var(--font-body);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.form-label .required {
+  color: var(--danger);
+}
+
+.form-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.75rem var(--space-4);
+  background-color: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
+}
+
+.form-input:focus-visible {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(109, 74, 255, 0.35);
+  outline: none;
+}
+
+.form-input.is-valid {
+  border-color: var(--success);
+}
+
+.form-input.is-invalid {
+  border-color: var(--danger);
+}
+
+.form-error {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--danger);
+  min-height: 1.1rem;
+  line-height: 1.3;
+}
+
+.form-general-error {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--danger);
+  text-align: center;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+/* Shake Animation for Invalid Inputs */
+@keyframes formShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.form-group.shake {
+  animation: formShake 300ms ease;
+}
+
+/* ==========================================================================
+   Confirmation State (DESIGN.md Section 7)
+   ========================================================================== */
+
+.confirmation-panel {
+  padding: var(--space-6) var(--space-5);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.confirmation-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-pill);
+  background-color: rgba(46, 229, 157, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-2);
+}
+
+.confirmation-check {
+  width: 48px;
+  height: 48px;
+  stroke: var(--success);
+  stroke-width: 3;
+  stroke-miterlimit: 10;
+}
+
+.confirmation-circle {
+  stroke: var(--success);
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.confirmation-path {
+  stroke: var(--success);
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+@keyframes stroke {
+  100% { stroke-dashoffset: 0; }
+}
+
+.confirmation-title {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.confirmation-subtext {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  max-width: 45ch;
+}
+
+.confirmation-card {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  width: 100%;
+  max-width: 460px;
+  margin-block: var(--space-3);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.confirmation-card__title {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.confirmation-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.confirmation-card__id {
+  font-size: var(--fs-xs);
+  color: var(--accent-cyan);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--border);
+}
+
+.confirmation-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   My Registrations Component
+   ========================================================================== */
+
+.my-registrations-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.my-reg-item {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  transition: border-color var(--dur-fast) ease;
+}
+
+.my-reg-item:hover {
+  border-color: var(--primary);
+}
+
+.my-reg-item__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.my-reg-item__title {
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: var(--space-1);
+}
+
+.my-reg-item__meta {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.my-reg-item__sub {
+  font-size: var(--fs-xs);
+  color: var(--accent-cyan);
+  margin-top: var(--space-1);
+  opacity: 0.85;
+}
+
+.my-registrations-empty {
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+}
+
+/* ==========================================================================
    Reduced Motion Accessibility (DESIGN.md Section 5)
    ========================================================================== */
 
