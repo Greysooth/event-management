@@ -1,8 +1,8 @@
 # Implementation Plan: Responsive Event Management Website
 
 ## Status
-- [ ] Phase 0: Plan & Architecture Decisions Approved (Gate)
-- [ ] Phase 1: Foundation (Semantic scaffold, design tokens, storage adapter, base responsive layout)
+- [x] Phase 0: Plan & Architecture Decisions Approved (Gate)
+- [x] Phase 1: Foundation (Semantic scaffold, design tokens, storage adapter, base responsive layout)
 - [ ] Phase 2: Events Display (Hero spotlight, event cards, detail modal, responsive grid)
 - [ ] Phase 3: Search, Filters & Sorting (Real-time search, category pills, sort dropdown, empty state)
 - [ ] Phase 4: Registration, Form Validation & Local Storage Management (Full a11y, duplicate checks, derived capacity)
@@ -19,7 +19,7 @@
 - **Registration Persistence & Scope**:
   - Registrations and capacity are stored in the client browser's `localStorage` as requested in the course's **Bonus Challenge** ("Local Storage-based registration data management").
   - **Demo Limits**: Data is local to each visitor's browser and device. It is not shared across visitors and does not prevent concurrent overbooking across different machines. A subtle badge in the UI clearly indicates: `"Demo Mode: Registrations are saved locally on this browser"`.
-  - **Repository Adapter**: The storage layer (`js/storage.js`) is architected with an asynchronous facade pattern, enabling straightforward migration to an external REST or Serverless API in the future without changing UI components.
+  - **Storage Adapter**: The synchronous browser-storage adapter (`js/storage.js`) provides named functions for registration and theme persistence. A future network-backed implementation would require callers to adopt asynchronous handling.
 
 ### 1.2 Design Direction & Theme Tokens
 - **Style**: Modern, vibrant high-contrast interface featuring subtle glassmorphism (`backdrop-filter: blur(12px)`), card elevation with hover micro-interactions (`translateY(-4px)`), clean border radii (`8px` to `16px`), and high-contrast accessible typography.

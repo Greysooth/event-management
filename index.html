@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Discover, explore, and register for premier technology, arts, business, and fitness events with EventPulse.">
+  <title>EventPulse | Discover & Register for Upcoming Events</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Repository-Relative Stylesheets -->
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+</head>
+<body>
+  <!-- Accessible Skip Link -->
+  <a href="#all-events" class="skip-link">Skip to content</a>
+
+  <!-- Global Header -->
+  <header class="site-header" id="site-header">
+    <div class="container header-container">
+      <div class="header-brand">
+        <a href="#" class="brand-logo" aria-label="EventPulse Home">
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+            <path d="M8 14h.01"></path>
+            <path d="M12 14h.01"></path>
+            <path d="M16 14h.01"></path>
+            <path d="M8 18h.01"></path>
+            <path d="M12 18h.01"></path>
+          </svg>
+          <span>EventPulse</span>
+        </a>
+        <span class="demo-badge" aria-label="Demo mode: data is stored locally">Demo Mode</span>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+        <ul class="nav-list">
+          <li><a href="#hero" class="nav-link active">Home</a></li>
+          <li><a href="#featured" class="nav-link">Featured</a></li>
+          <li><a href="#all-events" class="nav-link">All Events</a></li>
+        </ul>
+        <button type="button" class="btn btn-secondary" id="open-my-registrations-btn" aria-label="View My Registrations">
+          <span>My Registrations</span>
+          <span class="badge-count" id="header-reg-count" aria-label="0 registered events">0</span>
+        </button>
+      </nav>
+
+      <!-- Header Action Controls -->
+      <div class="header-actions">
+        <!-- Theme Toggle Button (Light/Dark) -->
+        <button type="button" class="btn-icon" id="theme-toggle" aria-label="Switch to dark theme" title="Toggle theme">
+          <svg id="theme-icon-sun" class="sun-icon sr-only" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="theme-icon-moon" class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button type="button" class="btn-menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Toggle navigation menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Landmark -->
+  <main id="main-content">
+    <!-- Hero Section Scaffold -->
+    <section id="hero" class="hero-section" aria-labelledby="hero-title">
+      <div class="container">
+        <div class="hero-grid" id="hero-grid">
+          <div class="hero-content">
+            <span class="demo-badge">Exclusive Experiences</span>
+            <h1 id="hero-title" class="hero-title">
+              Discover & Experience Unforgettable Events
+            </h1>
+            <p class="hero-description">
+              Connect with visionary creators, industry leaders, and vibrant communities. Explore upcoming summits, concerts, and workshops with instant registration.
+            </p>
+            <div class="hero-actions">
+              <a href="#all-events" class="btn btn-primary">Explore All Events</a>
+              <a href="#featured" class="btn btn-secondary">Featured Highlights</a>
+            </div>
+          </div>
+          <div class="hero-spotlight" id="hero-spotlight" aria-label="Upcoming spotlight event">
+            <!-- Phase 2 will render the dynamic spotlight card here -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controls Section Scaffold (Search, Filters, Sort) -->
+    <section id="controls" class="controls-section" aria-label="Event search and filters">
+      <div class="container" id="controls-container">
+        <!-- Phase 3 will render interactive search, category pills, and sort controls -->
+      </div>
+    </section>
+
+    <!-- Featured Events Showcase Scaffold -->
+    <section id="featured" class="featured-section" aria-labelledby="featured-title">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 id="featured-title" class="section-title">Featured Highlights</h2>
+            <p class="section-subtitle">Hand-picked premier events you don't want to miss</p>
+          </div>
+        </div>
+        <div id="featured-grid" class="featured-grid" aria-live="polite">
+          <!-- Phase 2 will render featured event cards here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- All Events Section Scaffold -->
+    <section id="all-events" class="events-section" aria-labelledby="events-title">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 id="events-title" class="section-title">Upcoming Events</h2>
+            <p class="section-subtitle" id="events-count-label">Explore all scheduled events across technology, arts, business, and fitness</p>
+          </div>
+        </div>
+
+        <!-- Dynamic Events Grid -->
+        <div id="events-grid" class="events-grid" aria-live="polite">
+          <!-- Phase 2 will render all event cards here -->
+        </div>
+
+        <!-- Empty State Component -->
+        <div id="empty-state" class="empty-state hidden" role="status" aria-live="polite">
+          <h3 class="empty-state-title">No events match your criteria</h3>
+          <p class="empty-state-text">Try adjusting your search keywords or switching category filters to view available events.</p>
+          <button type="button" class="btn btn-primary" id="btn-reset-filters">Reset All Filters</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Event Detail & Registration Modal Dialog -->
+  <dialog id="event-modal" class="modal-dialog" aria-labelledby="modal-event-title" aria-modal="true">
+    <div id="modal-content" class="modal-body">
+      <!-- Populated dynamically in Phase 2 and Phase 4 -->
+    </div>
+  </dialog>
+
+  <!-- Registration Confirmation Modal Dialog -->
+  <dialog id="confirmation-modal" class="modal-dialog" aria-labelledby="confirmation-title" aria-modal="true">
+    <div id="confirmation-content" class="modal-body">
+      <!-- Populated dynamically in Phase 4 -->
+    </div>
+  </dialog>
+
+  <!-- My Registrations Modal Dialog -->
+  <dialog id="my-registrations-modal" class="modal-dialog" aria-labelledby="my-registrations-title" aria-modal="true">
+    <div id="my-registrations-content" class="modal-body">
+      <!-- Populated dynamically in Phase 4 -->
+    </div>
+  </dialog>
+
+  <!-- Global Footer -->
+  <footer class="site-footer" id="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <!-- Col 1: Brand Info -->
+        <div>
+          <div class="brand-logo footer-brand-logo">
+            <span>EventPulse</span>
+          </div>
+          <p class="footer-text">
+            A modern, accessible event management platform connecting enthusiasts with memorable experiences worldwide.
+          </p>
+          <p class="footer-text footer-demo-note">
+            <strong>Demo Notice:</strong> Registrations and preferences are stored locally in your browser.
+          </p>
+        </div>
+
+        <!-- Col 2: Navigation Links -->
+        <div>
+          <h3 class="footer-col-title">Navigation</h3>
+          <ul class="footer-links">
+            <li><a href="#hero" class="footer-link">Home</a></li>
+            <li><a href="#featured" class="footer-link">Featured Events</a></li>
+            <li><a href="#all-events" class="footer-link">All Events</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Event Categories -->
+        <div>
+          <h3 class="footer-col-title">Categories</h3>
+          <ul class="footer-links">
+            <li><a href="#controls" class="footer-link">Technology</a></li>
+            <li><a href="#controls" class="footer-link">Music & Arts</a></li>
+            <li><a href="#controls" class="footer-link">Business & Networking</a></li>
+            <li><a href="#controls" class="footer-link">Sports & Fitness</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Newsletter Mock -->
+        <div>
+          <h3 class="footer-col-title">Stay Updated</h3>
+          <p class="footer-text">Subscribe to our newsletter for exclusive early-bird notifications.</p>
+          <form class="newsletter-form" id="newsletter-form" novalidate>
+            <div class="newsletter-input-group">
+              <label for="newsletter-email" class="sr-only">Email address for newsletter</label>
+              <input type="email" id="newsletter-email" class="newsletter-input" placeholder="Enter your email" required>
+              <button type="submit" class="btn btn-primary newsletter-submit">Join</button>
+            </div>
+            <div class="newsletter-status" id="newsletter-status" role="status" aria-live="polite"></div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Footer Bottom -->
+      <div class="footer-bottom">
+        <p>&copy; 2026 EventPulse. Built with semantic HTML5, modern CSS3 &amp; Vanilla ES Modules.</p>
+        <p>Responsive across 375px, 768px, and 1280px viewports.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main ES Module Script -->
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
