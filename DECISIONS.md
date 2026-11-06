@@ -9,9 +9,9 @@ This document records architectural, data model, and implementation decisions fo
 - **Decision**: Deploy frontend-only on Vercel (with full GitHub Pages compatibility). All registration persistence and theme preferences will use browser `localStorage` as targeted in the bonus challenge.
 - **Demo Scope & Boundaries**:
   - Registration and capacity management is explicitly client-side demo behavior.
-  - Data is stored per-device/browser session; it is not authoritative across multiple concurrent visitors.
+  - Data is stored per-device/browser using persistent `localStorage`; it is not authoritative across multiple concurrent visitors. If browser storage is unavailable, data falls back to memory for the current page load only.
   - A subtle UI banner/badge indicates: `"Demo Mode: Registrations are saved locally on this browser"`.
-  - The storage module (`js/storage.js`) implements an asynchronous Repository/Adapter interface so it can seamlessly swap to a backend REST API in the future without modifying UI components.
+  - The storage module (`js/storage.js`) exposes a synchronous adapter. Replacing it with a network-backed API will require asynchronous handling in callers.
 - **Consequences**: Zero cold starts (eliminating the 50-90s spin-up delay of Render free tier), zero maintenance overhead, 100% uptime for graders, and direct alignment with course bonus rubrics.
 
 ---
@@ -57,7 +57,7 @@ This document records architectural, data model, and implementation decisions fo
 - **Decision**:
   - All storage reads and writes in `js/storage.js` are wrapped in `try...catch` blocks.
   - If `localStorage` is unavailable or throws an exception, the module gracefully falls back to an in-memory JavaScript `Map` cache.
-  - If corrupted JSON is detected, the module resets the key to an empty collection `[]` and logs a warning instead of breaking the UI.
+  - If corrupted JSON is detected, the module removes the invalid key, returns that key's safe default, and logs a warning instead of breaking the UI.
 - **Consequences**: The application will not throw unhandled exceptions or crash in restricted browser environments.
 
 ---
@@ -87,7 +87,7 @@ This document records architectural, data model, and implementation decisions fo
 - **Decision**:
   - Use the native HTML5 `<dialog>` element (`event-modal`, `confirmation-modal`, `my-registrations-modal`).
   - Native `.showModal()` provides automatic backdrop rendering, focus trapping, and `Escape` key dismissal.
-  - Mobile hamburger menu toggles `aria-expanded` and traps focus within the menu when open.
+  - Mobile hamburger menu toggles `aria-expanded`, removes the closed menu from sequential keyboard navigation, traps Tab focus while open, and closes on Escape. Opening moves focus into the menu; Escape returns focus to the toggle.
 - **Consequences**: Lightweight, semantic, zero external UI library dependencies.
 
 ---
