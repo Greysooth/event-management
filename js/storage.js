@@ -41,6 +41,30 @@ function initializeStorageVersion() {
 
 initializeStorageVersion();
 
+function isRegistrationRecord(registration) {
+  if (!registration || typeof registration !== 'object' || Array.isArray(registration)) return false;
+
+  const stringFields = ['id', 'eventId', 'name', 'email', 'phone', 'registeredAt'];
+  if (!stringFields.every((field) => typeof registration[field] === 'string' && registration[field].trim())) {
+    return false;
+  }
+
+  const isIsoTimestamp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/i
+    .test(registration.registeredAt);
+  return isIsoTimestamp && Number.isFinite(Date.parse(registration.registeredAt));
+}
+
+function normalizeRegistration(registration) {
+  return {
+    id: registration.id,
+    eventId: registration.eventId,
+    name: registration.name,
+    email: registration.email,
+    phone: registration.phone,
+    registeredAt: registration.registeredAt
+  };
+}
+
 function useMemoryFallback(error) {
   localStorageAvailable = false;
   console.warn('[Storage] Browser storage is unavailable; using in-memory data for this page load.', error);
@@ -88,14 +112,27 @@ function writeStorage(key, value) {
 /** Returns all registrations in the required Registration data shape. */
 export function getRegistrations() {
   const registrations = readStorage(STORAGE_KEYS.REGISTRATIONS, []);
-  if (Array.isArray(registrations)) return registrations;
-  writeStorage(STORAGE_KEYS.REGISTRATIONS, []);
-  return [];
+  if (!Array.isArray(registrations)) {
+    writeStorage(STORAGE_KEYS.REGISTRATIONS, []);
+    return [];
+  }
+
+  const normalized = registrations.filter(isRegistrationRecord).map(normalizeRegistration);
+  if (normalized.length !== registrations.length || normalized.some((item, index) => (
+    JSON.stringify(item) !== JSON.stringify(registrations[index])
+  ))) {
+    writeStorage(STORAGE_KEYS.REGISTRATIONS, normalized);
+  }
+  return normalized;
 }
 
 /** Saves a registration and returns the updated collection. */
 export function saveRegistration(registration) {
-  const updated = [...getRegistrations(), registration];
+  if (!isRegistrationRecord(registration)) {
+    throw new TypeError('Registration must match the required Registration data model.');
+  }
+
+  const updated = [...getRegistrations(), normalizeRegistration(registration)];
   writeStorage(STORAGE_KEYS.REGISTRATIONS, updated);
   return updated;
 }
