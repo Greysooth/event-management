@@ -6,6 +6,23 @@
   <meta name="description" content="Discover, explore, and register for premier technology, arts, business, and fitness events with EventPulse.">
   <title>EventPulse | Discover &amp; Register for Upcoming Events</title>
 
+  <script>
+    (() => {
+      let theme = null;
+      try {
+        const storedTheme = JSON.parse(window.localStorage.getItem('eventpulse_theme_v1'));
+        if (storedTheme === 'light' || storedTheme === 'dark') theme = storedTheme;
+      } catch {
+        // Use the operating system preference when stored theme data is unavailable.
+      }
+
+      if (!theme) {
+        theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      }
+      document.documentElement.dataset.theme = theme;
+    })();
+  </script>
+
   <!-- Google Fonts: Space Grotesk, Inter, JetBrains Mono (DESIGN.md Section 3) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -108,7 +125,7 @@
               <span class="stat-item"><strong>LOCAL</strong> Demo mode</span>
             </div>
           </div>
-          <div class="hero-spotlight hero-showcase" id="hero-spotlight" aria-label="Explore event categories">
+          <div class="hero-spotlight hero-showcase" id="hero-spotlight" aria-label="Featured event spotlight">
             <div class="showcase-orbit showcase-orbit-one" aria-hidden="true"></div>
             <div class="showcase-orbit showcase-orbit-two" aria-hidden="true"></div>
             <div class="showcase-topline">
@@ -131,6 +148,7 @@
               <span class="showcase-sparkle" aria-hidden="true">✦ ✦ ✦</span>
             </div>
           </div>
+          <span class="sr-only" id="spotlight-status" role="status" aria-live="polite"></span>
         </div>
       </div>
     </section>
@@ -144,7 +162,7 @@
             <p class="section-subtitle">Hand-picked premier events you don't want to miss</p>
           </div>
         </div>
-        <div id="featured-grid" class="featured-grid" aria-live="polite">
+        <div id="featured-grid" class="featured-grid">
           <!-- Phase 2 will render featured event cards here -->
         </div>
       </div>
@@ -249,7 +267,7 @@
         </div>
 
         <!-- Dynamic Events Grid -->
-        <div id="events-grid" class="events-grid" aria-live="polite">
+        <div id="events-grid" class="events-grid">
           <!-- Phase 2 will render all event cards here -->
         </div>
 

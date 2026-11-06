@@ -221,6 +221,24 @@ export function getEventById(id) {
   return event ? getEventWithDerivedCapacity(event) : null;
 }
 
+function renderCapacityMeterHTML(capacity) {
+  const total = Number(capacity.total);
+  if (!Number.isFinite(total) || total <= 0) return '';
+
+  const registered = Math.min(total, Math.max(0, Number(capacity.registered) || 0));
+  const remaining = Math.max(0, total - registered);
+
+  return `
+    <progress
+      class="event-card__capacity"
+      max="${total}"
+      value="${registered}"
+      aria-label="Seats reserved"
+      aria-valuetext="${registered} of ${total} seats reserved; ${remaining} remaining"
+    ></progress>
+  `;
+}
+
 /**
  * Creates and returns an HTML article element representing an event card.
  * @param {Object} event - Event with derivedCapacity
@@ -234,7 +252,13 @@ export function renderEventCard(event) {
 
   const categoryMeta = getCategoryBadgeMeta(event.category);
   const shortDate = formatShortDate(event.date);
-  const capacity = event.derivedCapacity || { remaining: event.capacity, isSoldOut: false, isLow: false };
+  const capacity = event.derivedCapacity || {
+    total: event.capacity,
+    registered: 0,
+    remaining: event.capacity,
+    isSoldOut: false,
+    isLow: false
+  };
 
   let spotsClass = '';
   let spotsText = `${capacity.remaining} spots left`;
@@ -256,7 +280,7 @@ export function renderEventCard(event) {
         width="400"
         height="250"
       >
-      <span class="event-card__date-chip">${shortDate}</span>
+      <time class="event-card__date-chip" datetime="${event.date}" aria-label="${formatFullDate(event.date)}">${shortDate}</time>
       <span class="event-card__badge ${categoryMeta.className}">${categoryMeta.label}</span>
       ${event.featured ? '<span class="event-card__badge event-card__featured-badge badge-featured">★ Featured</span>' : ''}
     </div>
@@ -271,6 +295,7 @@ export function renderEventCard(event) {
       ${event.featured ? renderCardCountdownHTML(event.date) : ''}
       <h3 id="card-title-${event.id}" class="event-card__title">${event.title}</h3>
       <p class="event-card__desc">${event.shortDescription}</p>
+      ${renderCapacityMeterHTML(capacity)}
       <div class="event-card__footer">
         <span class="event-card__spots ${spotsClass}">${spotsText}</span>
         <div class="event-card__actions">
@@ -328,7 +353,12 @@ export function renderHeroSpotlight(event, container, featuredEvents = [event], 
 
   const categoryMeta = getCategoryBadgeMeta(event.category);
   const shortDate = formatShortDate(event.date);
-  const capacity = event.derivedCapacity || { remaining: event.capacity, isSoldOut: false };
+  const capacity = event.derivedCapacity || {
+    total: event.capacity,
+    registered: 0,
+    remaining: event.capacity,
+    isSoldOut: false
+  };
   const safeFeaturedEvents = featuredEvents.length ? featuredEvents : [event];
 
   container.dataset.activeSpotlightIndex = String(activeIndex);
@@ -343,7 +373,7 @@ export function renderHeroSpotlight(event, container, featuredEvents = [event], 
           width="600"
           height="338"
         >
-        <span class="event-card__date-chip">${shortDate}</span>
+        <time class="event-card__date-chip" datetime="${event.date}" aria-label="${formatFullDate(event.date)}">${shortDate}</time>
         <span class="event-card__badge ${categoryMeta.className}">${categoryMeta.label}</span>
         <span class="event-card__badge event-card__featured-badge badge-featured"><span aria-hidden="true">★</span> Featured pick</span>
       </div>
@@ -358,7 +388,8 @@ export function renderHeroSpotlight(event, container, featuredEvents = [event], 
         <h2 id="spotlight-title" class="event-card__title spotlight-card__title">${event.title}</h2>
         <p class="event-card__desc spotlight-card__description">${event.shortDescription}</p>
         ${renderSpotlightCountdownHTML(event.date)}
-        <div class="spotlight-navigation" aria-label="Featured event navigation">
+        ${renderCapacityMeterHTML(capacity)}
+        <div class="spotlight-navigation" role="group" aria-label="Featured event navigation">
           <button type="button" class="slider-arrow-btn" data-spotlight-action="previous" aria-label="Previous featured event">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
           </button>

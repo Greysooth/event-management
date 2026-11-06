@@ -13,11 +13,10 @@ let tickerIntervalId = null;
  * @returns {{ days: number, hours: number, minutes: number, seconds: number, isPast: boolean, formatted: string }}
  */
 export function calculateTimeRemaining(targetDateISO) {
-  if (!targetDateISO) {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0, isPast: true, formatted: 'Date TBD' };
+  const targetTime = Date.parse(targetDateISO);
+  if (!Number.isFinite(targetTime)) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0, isPast: false, formatted: 'Date TBD' };
   }
-
-  const targetTime = new Date(targetDateISO).getTime();
   const now = Date.now();
   const diff = targetTime - now;
 
@@ -28,7 +27,7 @@ export function calculateTimeRemaining(targetDateISO) {
       minutes: 0,
       seconds: 0,
       isPast: true,
-      formatted: 'Happening Now'
+      formatted: 'Event started'
     };
   }
 
@@ -59,17 +58,25 @@ export function renderSpotlightCountdownHTML(targetDateISO) {
 
   if (remaining.isPast) {
     return `
-      <div class="spotlight-countdown mono is-live" data-countdown-date="${targetDateISO}" aria-label="Event status">
+      <div class="spotlight-countdown mono is-live" data-countdown-date="${targetDateISO}" role="timer" aria-label="Event started">
         <span class="live-pulse-badge">
           <span class="live-dot" aria-hidden="true"></span>
-          <span>LIVE NOW &bull; HAPPENING TODAY</span>
+          <span>EVENT STARTED</span>
         </span>
       </div>
     `;
   }
 
+  if (remaining.formatted === 'Date TBD') {
+    return `
+      <div class="spotlight-countdown mono" data-countdown-date="${targetDateISO}" role="timer" aria-label="Event date to be announced">
+        <span class="countdown-eyebrow">DATE TO BE ANNOUNCED</span>
+      </div>
+    `;
+  }
+
   return `
-    <div class="spotlight-countdown mono" data-countdown-date="${targetDateISO}" aria-label="Starts in ${remaining.formatted}">
+    <div class="spotlight-countdown mono" data-countdown-date="${targetDateISO}" role="timer" aria-label="Starts in ${remaining.formatted}">
       <span class="countdown-eyebrow">// COUNTDOWN TO KICKOFF</span>
       <div class="countdown-blocks">
         <div class="countdown-block">
@@ -103,10 +110,10 @@ export function renderSpotlightCountdownHTML(targetDateISO) {
  */
 export function renderCardCountdownHTML(targetDateISO) {
   const remaining = calculateTimeRemaining(targetDateISO);
-  const text = remaining.isPast ? 'Happening Now' : remaining.formatted;
+  const text = remaining.formatted;
 
   return `
-    <div class="card-countdown mono" data-countdown-date="${targetDateISO}" aria-label="Starts in ${text}">
+    <div class="card-countdown mono" data-countdown-date="${targetDateISO}" role="timer" aria-label="${remaining.isPast ? text : `Starts in ${text}`}">
       <span class="countdown-icon" aria-hidden="true">⏱</span>
       <span class="countdown-text" data-unit="compact">${text}</span>
     </div>
@@ -120,10 +127,10 @@ export function renderCardCountdownHTML(targetDateISO) {
  */
 export function renderModalCountdownHTML(targetDateISO) {
   const remaining = calculateTimeRemaining(targetDateISO);
-  const text = remaining.isPast ? 'Happening Now' : remaining.formatted;
+  const text = remaining.formatted;
 
   return `
-    <div class="modal-countdown-strip mono" data-countdown-date="${targetDateISO}">
+    <div class="modal-countdown-strip mono" data-countdown-date="${targetDateISO}" role="timer" aria-label="${remaining.isPast ? text : `Starts in ${text}`}">
       <span class="modal-countdown-label">
         <span aria-hidden="true">⏱</span> COUNTDOWN TO EVENT:
       </span>
@@ -144,11 +151,33 @@ export function updateAllCountdowns() {
     if (!targetDateISO) return;
 
     const remaining = calculateTimeRemaining(targetDateISO);
+    const isDateTbd = remaining.formatted === 'Date TBD';
+    const statusText = isDateTbd
+      ? 'Event date to be announced'
+      : (remaining.isPast ? remaining.formatted : `Starts in ${remaining.formatted}`);
+    el.setAttribute('aria-label', statusText);
+
+    const countdownBlocks = el.querySelector('.countdown-blocks');
+    if (isDateTbd && countdownBlocks) {
+      el.innerHTML = '<span class="countdown-eyebrow">DATE TO BE ANNOUNCED</span>';
+      return;
+    }
 
     // Update compact chips and strips
     const compactEl = el.querySelector('[data-unit="compact"]');
     if (compactEl) {
-      compactEl.textContent = remaining.isPast ? 'Happening Now' : remaining.formatted;
+      compactEl.textContent = remaining.formatted;
+    }
+
+    if (remaining.isPast && countdownBlocks) {
+      el.classList.add('is-live');
+      el.innerHTML = `
+        <span class="live-pulse-badge">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span>EVENT STARTED</span>
+        </span>
+      `;
+      return;
     }
 
     // Update structured spotlight blocks
@@ -162,11 +191,7 @@ export function updateAllCountdowns() {
     if (minsEl) minsEl.textContent = String(remaining.minutes).padStart(2, '0');
     if (secsEl) secsEl.textContent = String(remaining.seconds).padStart(2, '0');
 
-    if (remaining.isPast) {
-      el.classList.add('is-live');
-    } else {
-      el.classList.remove('is-live');
-    }
+    el.classList.toggle('is-live', remaining.isPast);
   });
 }
 

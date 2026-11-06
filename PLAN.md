@@ -4,9 +4,9 @@
 - [x] Phase 0: Plan & Architecture Decisions Approved (Gate)
 - [x] Phase 1: Foundation (Semantic scaffold, design tokens, storage adapter, base responsive layout)
 - [x] Phase 2: Events Display (Hero spotlight, event cards, detail modal, responsive grid)
-- [ ] Phase 3: Search, Filters & Sorting (Real-time search, category pills, sort dropdown, empty state)
+- [x] Phase 3: Search, Filters & Sorting (Real-time search, category pills, sort dropdown, empty state)
 - [x] Phase 4: Registration, Form Validation & Local Storage Management (Full a11y, duplicate checks, derived capacity)
-- [ ] Phase 5: Bonus Features & Polish (Dark/Light mode switch, live countdown timers, micro-animations)
+- [x] Phase 5: Bonus Features & Polish (Dark/Light mode switch, live countdown timers, micro-animations)
 - [ ] Phase 6: Testing, Documentation & Vercel/GitHub Pages Deployment
 
 ---
@@ -60,7 +60,7 @@
     - `--gradient-tech`: `linear-gradient(135deg, #22E1FF 0%, #6D4AFF 100%)`
     - `--gradient-glow`: `radial-gradient(circle at 50% 0%, rgba(109,74,255,.35), transparent 60%)`
   - **Category Colors**:
-    - Tech: `--accent-cyan` | Music: `--accent-pink` | Workshop: `--accent-lime` | Sports: `--success` | Social: `#FFB020`
+    - Technology: `--cat-tech` | Music & Arts: `--cat-music` | Business & Networking: `--cat-business` | Sports & Fitness: `--cat-sports`
 - **Spacing, Radius & Shadows**:
   - Spacing (8px grid): `--space-1` (0.25rem) through `--space-9` (6rem)
   - Radius: `--radius-sm` (8px), `--radius-md` (14px), `--radius-lg` (22px), `--radius-pill` (999px)
@@ -112,8 +112,8 @@
 
 ### 2.5 All Events Grid Section (`<section id="all-events" class="events-section">`)
 - **Desktop (1280px)**:
-  - 3-column CSS Grid (`grid-template-columns: repeat(3, 1fr); gap: 1.5rem;`).
-  - Cards display: image with category overlay, venue-local date and time, title, venue, 2-line short description, derived capacity meter, and action buttons ("Details" & "Register").
+  - 4-column CSS Grid at 1280px and wider, matching `DESIGN.md`; 3 columns from 1024px.
+  - Cards display: image with category overlay, venue-local date chip, title, venue, 2-line short description, derived capacity meter, and action buttons ("Details" & "Register").
   - Empty state (`#empty-state`) displayed when search/filter yields 0 results, including a "Reset Filters" button.
 - **Mobile (375px)**:
   - 1-column layout (`grid-template-columns: 1fr`).
@@ -123,9 +123,8 @@
 ### 2.6 Event Details & Registration Modal (`<dialog id="event-modal" class="modal">`)
 - **Desktop (1280px)**:
   - Accessible native `<dialog>` element with backdrop blur.
-  - 2-column layout:
-    - Left: Full event image, category badge, complete venue-local date/time with timezone indicator, full description, remaining capacity counter.
-    - Right: Registration form (`#registration-form`) with explicit `<label>` elements, input validation states, real-time error spans, and "Confirm Registration" button.
+  - Scrollable single-column layout: image, title and category, countdown, venue-local date/time, venue, description, capacity, and an inline registration option.
+  - Selecting registration replaces the event actions with a form using explicit `<label>` elements, input validation states, and real-time error messages.
 - **Mobile (375px)**:
   - Full-screen or bottom-sheet scrollable modal with sticky header close button ("✕").
 
@@ -142,7 +141,7 @@
   - 4 columns: Brand statement + Demo disclaimer, Quick navigation links, Event categories, and Newsletter subscription mock input.
 - **Mobile (375px)**:
   - Clean vertical stack with centered copyright notice and accessible links.
-- **Newsletter Mock Behavior**: Accessible email input and "Subscribe" button; validates email and presents a non-intrusive feedback toast ("Thank you for subscribing to EventPulse updates!") without reloading.
+- **Newsletter Mock Behavior**: Accessible email input and "Subscribe" button; validates email and reports feedback in a polite status region without reloading.
 
 ---
 
@@ -327,7 +326,7 @@ Registration: { id, eventId, name, email, phone, registeredAt }
 ## 5. Per-Phase Task Breakdown (Shift-Left Responsiveness & Accessibility)
 
 ### Phase 0: Plan & Architecture Approval Gate
-- **Deliverables**: Finalized [PLAN.md](file:///c:/Dev/web_design_event_management/PLAN.md) and fully documented [DECISIONS.md](file:///c:/Dev/web_design_event_management/DECISIONS.md) logging all 9 ADRs.
+- **Deliverables**: Finalized [PLAN.md](./PLAN.md) and fully documented [DECISIONS.md](./DECISIONS.md) logging all 12 ADRs.
 - **Gate**: All requirements, boundaries, and data models validated before touching any code.
 
 ### Phase 1: Foundation (Semantic Scaffold, Design Tokens, Storage Adapter, Base Responsive Layout)
@@ -338,7 +337,7 @@ Registration: { id, eventId, name, email, phone, registeredAt }
     - Semantic landmarks: `<header>`, `<nav>`, `<main>`, `<section>`, `<footer>`, `<dialog>`.
     - Skip-to-content link (`<a href="#all-events" class="skip-link">Skip to content</a>`).
   - `css/style.css`:
-    - Modern CSS reset, focus-visible indicators (`outline: 2px solid var(--color-primary)`), typography, CSS custom properties (`:root` and `.dark`).
+    - Modern CSS reset, focus-visible indicators (`outline: 2px solid var(--accent-cyan)`), typography, CSS custom properties (`:root` and `[data-theme="light"]`).
   - `css/responsive.css`:
     - Mobile-first breakpoints: Mobile (375px), Tablet (768px), Desktop (1280px).
   - `js/storage.js`:
@@ -360,13 +359,13 @@ Registration: { id, eventId, name, email, phone, registeredAt }
       - `getEventById(id)`: Returns single event with derived capacity.
       - `renderEventCard(event)`: Creates card DOM element with accessible `alt` text and ARIA tags.
       - `renderEventsGrid(events, container)`: Populates grid container.
-      - `renderHeroSpotlight(event)`: Populates hero section with featured spotlight event.
+      - `renderHeroSpotlight(event, container, featuredEvents, activeIndex)`: Populates hero section with a featured event and carousel controls.
       - `openEventModal(eventId)`: Opens native `<dialog>` with focus trapping.
       - `closeEventModal()`: Closes modal and returns focus to triggering element.
   - `css/style.css`:
-    - Card layouts, aspect-ratio image containers, badges, capacity bars, `<dialog>` styling and `::backdrop` blur.
+    - Card layouts, aspect-ratio image containers, badges, accessible capacity meters, `<dialog>` styling and `::backdrop` blur.
   - `css/responsive.css`:
-    - 1-column on mobile (375px), 2-column on tablet (768px), 3-column on desktop (1280px). Modal responsive sheet behavior.
+    - 1-column on mobile (375px), 2-column on tablet (768px), 3 columns from 1024px, and 4 columns for the all-events grid at 1280px and wider. Modal responsive sheet behavior.
   - `js/app.js`:
     - Initialize page, load events, bind event delegation for modal triggers.
 
@@ -393,13 +392,13 @@ Registration: { id, eventId, name, email, phone, registeredAt }
   - `js/registration.js`:
     - Named exports:
       - `validateName(name)`: Validates name against regex and length.
-      - `validateEmail(email)`: Validates email regex.
+      - `validateEmail(email, eventId)`: Validates email and checks for a duplicate registration for that event.
       - `validatePhone(phone)`: Validates phone digit count.
       - `validateForm(formData)`: Returns `{ isValid, errors }`.
-      - `handleRegistrationSubmit(e, form)`: Processes registration, saves to storage, updates capacity.
-      - `showConfirmationModal(registration, event)`: Displays confirmation modal.
-      - `renderMyRegistrationsList(container)`: Populates "My Registrations" modal with cancel buttons.
-      - `cancelUserRegistration(registrationId)`: Cancels registration, updates storage, restores capacity.
+      - `handleRegistrationSubmit(e, form, onSuccessCallback)`: Processes registration, saves to storage, and notifies the app.
+      - `showConfirmationModal(registration, event, onUpdateCallback)`: Displays confirmation and carries the update callback into "My Registrations".
+      - `renderMyRegistrationsList(container, onCancelCallback)`: Populates "My Registrations" with event dates, venues, and cancel buttons.
+      - `cancelUserRegistration(registrationId, onUpdateCallback)`: Cancels registration, updates storage, and restores derived capacity.
   - `index.html`:
     - Registration form with explicit `<label for="...">`, error spans (`aria-describedby`, `role="alert"`), `<dialog id="confirmation-modal">`, `<dialog id="my-registrations-modal">`.
   - `css/style.css`:
@@ -413,17 +412,17 @@ Registration: { id, eventId, name, email, phone, registeredAt }
 - **Goal**: Implement all bonus challenges and visual micro-interactions.
 - **Files Touched**:
   - `js/app.js`:
-    - Theme Controller:
-      - `initTheme()`: Reads `prefers-color-scheme` and `localStorage`, toggles `.dark` class.
-      - `toggleTheme()`: Toggles theme, updates icon, persists to `localStorage`.
-    - Live Countdown Engine:
-      - `startCountdownTimer(targetDateISO, domElements)`: Ticks every 1000ms calculating remaining Days, Hours, Mins, Secs. Displays "Live Now" when zero is reached.
-    - Mobile Menu Controller:
-      - `initMobileMenu()`: Manages hamburger toggle, `aria-expanded`, and `Escape` key dismissal.
-    - Newsletter Mock Controller:
-      - Validates newsletter email and displays non-intrusive feedback toast.
+    - Theme controller reads the stored preference or system preference, toggles `data-theme`, and persists changes.
+    - Mobile navigation manages `aria-expanded`, keyboard focus, and Escape dismissal.
+    - Newsletter mock validates the email and reports feedback in an accessible status region.
+  - `js/countdown.js`:
+    - `calculateTimeRemaining(targetDateISO)`: Calculates time to event start and handles invalid/missing dates.
+    - `renderSpotlightCountdownHTML(targetDateISO)`, `renderCardCountdownHTML(targetDateISO)`, and `renderModalCountdownHTML(targetDateISO)`: Render countdowns with timer semantics.
+    - `initCountdownEngine()`, `updateAllCountdowns()`, and `stopCountdownEngine()`: Start, update, and stop the shared one-second ticker.
+  - `js/events.js`:
+    - Mounts the spotlight, featured-card, and modal countdowns and renders accessible capacity meters from derived registration counts.
   - `css/style.css`:
-    - `.dark` custom properties override.
+    - `[data-theme="light"]` custom property overrides.
     - Keyframe animations: `@keyframes modalFadeIn`, checkmark bounce, pulse on live badges.
     - `@media (prefers-reduced-motion: reduce)`: Disables non-essential animations.
   - `css/responsive.css`:
@@ -442,17 +441,17 @@ Registration: { id, eventId, name, email, phone, registeredAt }
 ### 6.1 Responsiveness & Viewports
 - [ ] **Mobile (375px)**:
   - Header displays logo, theme switch, and hamburger button.
-  - Mobile drawer opens cleanly on hamburger click, sets `aria-expanded="true"`, and closes on `Escape` key or backdrop tap.
+  - Mobile drawer opens cleanly on hamburger click, sets `aria-expanded="true"`, and closes on Escape, a navigation link, or the menu toggle.
   - Category filter pills scroll smoothly horizontally without viewport overflow.
   - All Events grid renders cleanly in 1 column (`1fr`).
-  - All interactive buttons and inputs meet the 44px x 44px touch target guideline.
+  - All interactive buttons, inputs, filter pills, and the search clear control meet the 44px touch target guideline.
 - [ ] **Tablet (768px)**:
   - Events grid renders in 2 columns (`repeat(2, 1fr)`).
   - Search and filter controls fit comfortably across the width.
 - [ ] **Desktop (1280px)**:
   - Full sticky navigation header with visible links and registrations badge.
   - Hero section displays 2 columns (intro copy left, spotlight card right).
-  - Events grid displays 3 columns (`repeat(3, 1fr)`).
+  - All-events grid displays 4 columns; featured grid displays 3 columns.
 
 ### 6.2 Search, Filtering & Sorting
 - [x] **Category Filter**: Clicking each category button filters the cards to that category only; clicking "All" shows all 8 events.

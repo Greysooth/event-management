@@ -96,7 +96,7 @@ This document records architectural, data model, and implementation decisions fo
 - **Context**: The footer includes a newsletter input that was previously unspecified.
 - **Decision**:
   - The newsletter subscription is defined as an accessible interactive mock.
-  - On submit, it validates the email format. If valid, it displays an accessible transient notification ("Thank you for subscribing to event alerts!") and clears the input without reloading the page.
+  - On submit, it validates the email format. If valid, it displays an accessible transient demo message ("Thanks for trying the newsletter signup demo.") and clears the input without reloading the page.
 - **Consequences**: Eliminates dead buttons and ensures every interactive control provides clear user feedback.
 
 ---
@@ -108,7 +108,7 @@ This document records architectural, data model, and implementation decisions fo
 
 ---
 
-## ADR 10: Adoption of DESIGN.md Specification
+## ADR 11: Adoption of DESIGN.md Specification
 - **Context**: `DESIGN.md` defines the strict visual and design token specification for the event management platform ("hackathon meets festival": dark, glowing, neon-accented interface with rounded shapes and monospace details).
 - **Decision**:
   - Adopt all tokens from `DESIGN.md` as the single source of truth for styling.
@@ -120,7 +120,7 @@ This document records architectural, data model, and implementation decisions fo
 
 ---
 
-## ADR 11: Editorial Patterns & UI Inspiration from design-refs
+## ADR 12: Editorial Patterns & UI Inspiration from design-refs
 - **Context**: The user provided screenshots in `design-refs` featuring a high-end editorial gallery/event aesthetic (`NM ART & DESIGN`).
 - **Decision**:
   - **Hero Feature Showcase**: Implement a segmented progress/pagination dash indicator under the hero spotlight (from `Screenshot 183901` and `183945`), allowing quick visual jumping across featured highlights with arrow navigation (`← →`).

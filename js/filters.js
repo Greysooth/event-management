@@ -61,6 +61,11 @@ export function filterEvents(events = [], { category = 'all', searchQuery = '', 
     return true;
   });
 
+  const getRemainingSpots = (event) => {
+    const remaining = event.derivedCapacity?.remaining;
+    return Number.isFinite(remaining) ? remaining : Number(event.capacity) || 0;
+  };
+
   // 3. Sorting
   return filtered.sort((a, b) => {
     switch (sortBy) {
@@ -68,15 +73,11 @@ export function filterEvents(events = [], { category = 'all', searchQuery = '', 
         return new Date(b.date).getTime() - new Date(a.date).getTime();
 
       case 'capacity-desc': {
-        const spotsA = a.derivedCapacity ? a.derivedCapacity.remainingSpots : a.capacity;
-        const spotsB = b.derivedCapacity ? b.derivedCapacity.remainingSpots : b.capacity;
-        return spotsB - spotsA;
+        return getRemainingSpots(b) - getRemainingSpots(a);
       }
 
       case 'capacity-asc': {
-        const spotsA = a.derivedCapacity ? a.derivedCapacity.remainingSpots : a.capacity;
-        const spotsB = b.derivedCapacity ? b.derivedCapacity.remainingSpots : b.capacity;
-        return spotsA - spotsB;
+        return getRemainingSpots(a) - getRemainingSpots(b);
       }
 
       case 'title-asc':

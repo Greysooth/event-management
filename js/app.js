@@ -24,6 +24,7 @@ import {
   handleRegistrationSubmit,
   openMyRegistrationsModal,
   closeMyRegistrationsModal,
+  closeConfirmationModal,
   validateName,
   validateEmail,
   validatePhone
@@ -41,6 +42,9 @@ import {
   initCountdownEngine,
   updateAllCountdowns
 } from './countdown.js';
+
+let currentSpotlightEvents = [];
+let cardEntranceObserver = null;
 
 /**
  * Initializes and manages Dark / Light color theme via data-theme attribute (DESIGN.md Section 7).
@@ -134,7 +138,9 @@ function initMobileNav() {
   });
 
   siteNav.addEventListener('click', (event) => {
-    if (mobileQuery.matches && event.target.closest('a, button')) closeMenu(true);
+    if (!mobileQuery.matches) return;
+    if (event.target.closest('a')) closeMenu(true);
+    else if (event.target.closest('button')) closeMenu();
   });
 
   siteNav.addEventListener('keydown', (event) => {
@@ -185,31 +191,37 @@ export function initEventsDisplay() {
     .filter((event) => event.featured)
     .sort((first, second) => new Date(first.date) - new Date(second.date));
   const upcomingFeaturedEvents = featuredEvents.filter((event) => new Date(event.date).getTime() >= Date.now());
-  const spotlightEvents = upcomingFeaturedEvents.length ? upcomingFeaturedEvents : featuredEvents;
-  const spotlightEvent = spotlightEvents[0] || allEvents[0];
+  currentSpotlightEvents = upcomingFeaturedEvents.length ? upcomingFeaturedEvents : featuredEvents;
+  const spotlightEvent = currentSpotlightEvents[0] || allEvents[0];
   if (spotlightContainer && spotlightEvent) {
-    const carouselEvents = spotlightEvents.length ? spotlightEvents : [spotlightEvent];
-    renderHeroSpotlight(spotlightEvent, spotlightContainer, carouselEvents, 0);
+    if (currentSpotlightEvents.length === 0) currentSpotlightEvents = [spotlightEvent];
+    renderHeroSpotlight(spotlightEvent, spotlightContainer, currentSpotlightEvents, 0);
     spotlightContainer.setAttribute('aria-label', 'Featured event spotlight');
-    spotlightContainer.setAttribute('aria-live', 'polite');
-    spotlightContainer.addEventListener('click', (event) => {
-      const control = event.target.closest('[data-spotlight-action], [data-spotlight-index]');
-      if (!control) return;
+    if (spotlightContainer.dataset.navigationBound !== 'true') {
+      spotlightContainer.dataset.navigationBound = 'true';
+      spotlightContainer.addEventListener('click', (event) => {
+        const control = event.target.closest('[data-spotlight-action], [data-spotlight-index]');
+        if (!control || currentSpotlightEvents.length === 0) return;
 
-      const currentIndex = Number(spotlightContainer.dataset.activeSpotlightIndex) || 0;
-      const nextIndex = control.hasAttribute('data-spotlight-index')
-        ? Number(control.dataset.spotlightIndex)
-        : (currentIndex + (control.dataset.spotlightAction === 'next' ? 1 : -1) + carouselEvents.length) % carouselEvents.length;
-      const boundedIndex = Math.max(0, Math.min(nextIndex, carouselEvents.length - 1));
+        const currentIndex = Number(spotlightContainer.dataset.activeSpotlightIndex) || 0;
+        const nextIndex = control.hasAttribute('data-spotlight-index')
+          ? Number(control.dataset.spotlightIndex)
+          : (currentIndex + (control.dataset.spotlightAction === 'next' ? 1 : -1) + currentSpotlightEvents.length) % currentSpotlightEvents.length;
+        const boundedIndex = Math.max(0, Math.min(nextIndex, currentSpotlightEvents.length - 1));
 
-      renderHeroSpotlight(carouselEvents[boundedIndex], spotlightContainer, carouselEvents, boundedIndex);
-      updateAllCountdowns();
-      if (control.hasAttribute('data-spotlight-index')) {
-        spotlightContainer.querySelector(`[data-spotlight-index="${boundedIndex}"]`)?.focus();
-      } else {
-        spotlightContainer.querySelector(`[data-spotlight-action="${control.dataset.spotlightAction}"]`)?.focus();
-      }
-    });
+        renderHeroSpotlight(currentSpotlightEvents[boundedIndex], spotlightContainer, currentSpotlightEvents, boundedIndex);
+        const spotlightStatus = document.getElementById('spotlight-status');
+        if (spotlightStatus) {
+          spotlightStatus.textContent = `Featured event ${boundedIndex + 1} of ${currentSpotlightEvents.length}: ${currentSpotlightEvents[boundedIndex].title}`;
+        }
+        updateAllCountdowns();
+        if (control.hasAttribute('data-spotlight-index')) {
+          spotlightContainer.querySelector(`[data-spotlight-index="${boundedIndex}"]`)?.focus();
+        } else {
+          spotlightContainer.querySelector(`[data-spotlight-action="${control.dataset.spotlightAction}"]`)?.focus();
+        }
+      });
+    }
   }
 
   // 2. Featured Events Section
@@ -220,7 +232,6 @@ export function initEventsDisplay() {
 
   // 3. All Events Section (delegated to search, filter & sort manager)
   renderFilteredEvents();
-  initCardEntranceAnimation();
   updateAllCountdowns();
 }
 
@@ -229,6 +240,9 @@ export function initEventsDisplay() {
  * Respects prefers-reduced-motion.
  */
 export function initCardEntranceAnimation() {
+  cardEntranceObserver?.disconnect();
+  cardEntranceObserver = null;
+
   const cards = document.querySelectorAll('.event-card:not(.is-visible)');
   if (!cards || cards.length === 0) return;
 
@@ -239,18 +253,18 @@ export function initCardEntranceAnimation() {
     return;
   }
 
-  const observer = new IntersectionObserver((entries, obs) => {
+  cardEntranceObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach((entry, idx) => {
       if (entry.isIntersecting) {
         setTimeout(() => {
           entry.target.classList.add('is-visible');
         }, idx * 60);
-        obs.unobserve(entry.target);
+        observer.unobserve(entry.target);
       }
     });
   }, { threshold: 0.1 });
 
-  cards.forEach((card) => observer.observe(card));
+  cards.forEach((card) => cardEntranceObserver.observe(card));
 }
 
 /**
@@ -311,13 +325,16 @@ function showRegistrationFormInModal(eventId) {
         if (!res.isValid) {
           input.classList.add('is-invalid');
           input.classList.remove('is-valid');
+          input.setAttribute('aria-invalid', 'true');
           if (errorEl) errorEl.textContent = res.error;
         } else if (val.trim()) {
           input.classList.remove('is-invalid');
           input.classList.add('is-valid');
+          input.setAttribute('aria-invalid', 'false');
           if (errorEl) errorEl.textContent = '';
         } else {
           input.classList.remove('is-invalid', 'is-valid');
+          input.removeAttribute('aria-invalid');
           if (errorEl) errorEl.textContent = '';
         }
       };
@@ -358,9 +375,11 @@ function showRegistrationFormInModal(eventId) {
         </button>
       `;
       document.getElementById('modal-cancel-btn')?.addEventListener('click', closeEventModal);
-      document.getElementById('modal-register-action-btn')?.addEventListener('click', () => {
+      const registerAction = document.getElementById('modal-register-action-btn');
+      registerAction?.addEventListener('click', () => {
         showRegistrationFormInModal(eventId);
       });
+      (registerAction?.disabled ? document.getElementById('modal-cancel-btn') : registerAction)?.focus();
     });
   }
 }
@@ -370,6 +389,17 @@ function showRegistrationFormInModal(eventId) {
  */
 function initModalListeners() {
   const eventModal = document.getElementById('event-modal');
+  const confirmationModal = document.getElementById('confirmation-modal');
+
+  eventModal?.addEventListener('cancel', (event) => {
+    event.preventDefault();
+    closeEventModal();
+  });
+
+  confirmationModal?.addEventListener('cancel', (event) => {
+    event.preventDefault();
+    closeConfirmationModal();
+  });
 
   // Delegated click handling for "Details" and "Register" buttons
   document.addEventListener('click', (e) => {
@@ -417,9 +447,10 @@ function initModalListeners() {
   }
 
   // Backdrop click dismisses modal dialogs
-  [eventModal, document.getElementById('my-registrations-modal'), document.getElementById('confirmation-modal')].forEach((dlg) => {
+  [eventModal, document.getElementById('my-registrations-modal'), confirmationModal].forEach((dlg) => {
     if (!dlg) return;
     dlg.addEventListener('click', (e) => {
+      if (!dlg.open) return;
       const rect = dlg.getBoundingClientRect();
       const isInDialog = (
         e.clientX >= rect.left &&
@@ -430,6 +461,7 @@ function initModalListeners() {
       if (!isInDialog) {
         if (dlg === eventModal) closeEventModal();
         if (dlg.id === 'my-registrations-modal') closeMyRegistrationsModal();
+        if (dlg === confirmationModal) closeConfirmationModal();
       }
     });
   });
@@ -459,7 +491,7 @@ function initNewsletter() {
 
     status.classList.remove('is-error');
     status.classList.add('is-success');
-    status.textContent = '✓ Thank you for subscribing to event updates!';
+    status.textContent = '✓ Thanks for trying the newsletter signup demo.';
     form.reset();
 
     setTimeout(() => {

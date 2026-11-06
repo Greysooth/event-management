@@ -7,13 +7,60 @@
 import {
   getRegistrations,
   saveRegistration,
-  removeRegistration,
-  getRegistrationsByEvent
+  removeRegistration
 } from './storage.js';
 
 import { getEventById, closeEventModal } from './events.js';
 
-let lastActiveElementBeforeModal = null;
+let lastConfirmationTrigger = null;
+let lastRegistrationsTrigger = null;
+
+function escapeHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[character]);
+}
+
+function formatEventDate(dateISO) {
+  const [year, month, day] = dateISO.slice(0, 10).split('-').map(Number);
+  const venueDate = new Date(Date.UTC(year, month - 1, day, 12));
+  return new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC'
+  }).format(venueDate);
+}
+
+function restoreModalFocus(trigger) {
+  const focusIfAvailable = (element) => {
+    if (!element || !element.isConnected || element.closest('[inert]')) return false;
+    element.focus();
+    return document.activeElement === element;
+  };
+
+  if (focusIfAvailable(trigger)) return;
+
+  if (trigger?.closest('[inert]')) {
+    focusIfAvailable(document.getElementById('menu-toggle'));
+    return;
+  }
+
+  const eventId = trigger?.dataset?.eventId;
+  if (eventId) {
+    const detailsButton = [...document.querySelectorAll('.btn-event-details')]
+      .find((button) => button.dataset.eventId === eventId);
+    if (focusIfAvailable(detailsButton)) return;
+  }
+
+  focusIfAvailable(document.getElementById('open-my-registrations-btn')) ||
+    focusIfAvailable(document.getElementById('menu-toggle'));
+}
 
 /**
  * Validates full name.
@@ -32,9 +79,9 @@ export function validateName(name) {
   if (trimmed.length > 60) {
     return { isValid: false, error: 'Name cannot exceed 60 characters.' };
   }
-  const nameRegex = /^[a-zA-Z\s.'-]+$/;
+  const nameRegex = /^[\p{L}\p{M}\s.'’\-]+$/u;
   if (!nameRegex.test(trimmed)) {
-    return { isValid: false, error: 'Name can only contain letters, spaces, hyphens, and apostrophes.' };
+    return { isValid: false, error: 'Name can only contain letters, spaces, hyphens, periods, and apostrophes.' };
   }
   return { isValid: true, error: '' };
 }
@@ -60,7 +107,7 @@ export function validateEmail(email, eventId = null) {
   if (eventId) {
     const existing = getRegistrations();
     const isDuplicate = existing.some(
-      (reg) => reg.eventId === eventId && reg.email.trim().toLowerCase() === trimmed
+      (reg) => reg.eventId === eventId && (reg.email || '').trim().toLowerCase() === trimmed
     );
     if (isDuplicate) {
       return { isValid: false, error: 'You are already registered for this event with this email address.' };
@@ -134,7 +181,7 @@ export function renderRegistrationFormHTML(eventId) {
   return `
     <form id="event-registration-form" class="registration-form" novalidate data-event-id="${eventId}">
       <h3 class="registration-form-title">Attendee Registration</h3>
-      <p class="registration-form-desc">Provide your contact details below to reserve your guaranteed ticket.</p>
+      <p class="registration-form-desc">Complete the details below to save your registration in this browser.</p>
 
       <div class="form-group" id="group-name">
         <label for="reg-name" class="form-label">Full Name <span class="required" aria-hidden="true">*</span></label>
@@ -210,15 +257,18 @@ function applyFormErrors(form, errors) {
     if (errors[field]) {
       input.classList.add('is-invalid');
       input.classList.remove('is-valid');
+      input.setAttribute('aria-invalid', 'true');
       errorEl.textContent = errors[field];
       input.closest('.form-group')?.classList.add('shake');
       setTimeout(() => input.closest('.form-group')?.classList.remove('shake'), 350);
     } else if (input.value.trim()) {
       input.classList.remove('is-invalid');
       input.classList.add('is-valid');
+      input.setAttribute('aria-invalid', 'false');
       errorEl.textContent = '';
     } else {
       input.classList.remove('is-invalid', 'is-valid');
+      input.removeAttribute('aria-invalid');
       errorEl.textContent = '';
     }
   });
@@ -273,7 +323,7 @@ export function handleRegistrationSubmit(e, form, onSuccessCallback) {
 
   const event = getEventById(eventId);
   closeEventModal();
-  showConfirmationModal(registration, event);
+  showConfirmationModal(registration, event, onSuccessCallback);
 
   if (typeof onSuccessCallback === 'function') {
     onSuccessCallback(registration, event);
@@ -284,13 +334,15 @@ export function handleRegistrationSubmit(e, form, onSuccessCallback) {
  * Opens and renders the Confirmation Modal dialog.
  * @param {Object} registration 
  * @param {Object} event 
+ * @param {Function} onUpdateCallback
  */
-export function showConfirmationModal(registration, event) {
+export function showConfirmationModal(registration, event, onUpdateCallback) {
   const modal = document.getElementById('confirmation-modal');
   const content = document.getElementById('confirmation-content');
-  if (!modal || !content) return;
+  if (!modal || !content || modal.open) return;
 
-  lastActiveElementBeforeModal = document.activeElement;
+  lastConfirmationTrigger = document.activeElement;
+  const eventDate = event ? formatEventDate(event.date) : '';
 
   content.innerHTML = `
     <div class="confirmation-panel">
@@ -302,17 +354,17 @@ export function showConfirmationModal(registration, event) {
         </svg>
       </div>
 
-      <h2 id="confirmation-title" class="confirmation-title">You're in, ${registration.name}!</h2>
-      <p class="confirmation-subtext">Your reservation has been confirmed and saved to your device.</p>
+      <h2 id="confirmation-title" class="confirmation-title">You're in, ${escapeHTML(registration.name)}!</h2>
+      <p class="confirmation-subtext">Your registration has been saved in this browser.</p>
 
       <div class="confirmation-card">
-        <div class="confirmation-card__title">${event ? event.title : 'Event Reservation'}</div>
+        <div class="confirmation-card__title">${escapeHTML(event ? event.title : 'Event Reservation')}</div>
         <div class="confirmation-card__meta mono">
-          <span>📅 ${event ? event.time : ''}</span>
-          <span>📍 ${event ? event.venue : ''}</span>
+          <span>${escapeHTML(eventDate)}${event?.time ? ` · ${escapeHTML(event.time)}` : ''}</span>
+          <span>${escapeHTML(event ? event.venue : '')}</span>
         </div>
         <div class="confirmation-card__id mono">
-          Registration ID: <strong>${registration.id}</strong>
+          Registration ID: <strong>${escapeHTML(registration.id)}</strong>
         </div>
       </div>
 
@@ -341,7 +393,7 @@ export function showConfirmationModal(registration, event) {
   doneBtn?.addEventListener('click', closeConfirmationModal);
   viewBookingsBtn?.addEventListener('click', () => {
     closeConfirmationModal();
-    openMyRegistrationsModal();
+    openMyRegistrationsModal(onUpdateCallback);
   });
 }
 
@@ -357,10 +409,8 @@ export function closeConfirmationModal() {
       modal.removeAttribute('open');
     }
   }
-  if (lastActiveElementBeforeModal && typeof lastActiveElementBeforeModal.focus === 'function') {
-    lastActiveElementBeforeModal.focus();
-    lastActiveElementBeforeModal = null;
-  }
+  restoreModalFocus(lastConfirmationTrigger);
+  lastConfirmationTrigger = null;
 }
 
 /**
@@ -375,12 +425,12 @@ export function renderMyRegistrationsList(container, onCancelCallback) {
   if (registrations.length === 0) {
     container.innerHTML = `
       <div class="my-registrations-empty">
-        <span style="font-size: 2.5rem; display: block; margin-bottom: var(--space-2);" aria-hidden="true">🎟️</span>
-        <h3 style="font-size: var(--fs-base); font-weight: 700; margin-bottom: var(--space-1); color: var(--text);">No Bookings Found</h3>
-        <p style="color: var(--text-muted); font-size: var(--fs-sm); max-width: 35ch; margin-inline: auto; margin-bottom: var(--space-4);">
-          You haven't registered for any events yet. Explore upcoming summits and workshops to get started.
+        <span class="my-registrations-empty__icon" aria-hidden="true">🎟️</span>
+        <h3 class="my-registrations-empty__title">No registrations yet</h3>
+        <p class="my-registrations-empty__text">
+          Explore upcoming events and save a place at something you love.
         </p>
-        <button type="button" class="btn btn-primary" id="btn-empty-browse-events">Explore Events</button>
+        <button type="button" class="btn btn-primary" id="btn-empty-browse-events">Browse events</button>
       </div>
     `;
 
@@ -400,6 +450,9 @@ export function renderMyRegistrationsList(container, onCancelCallback) {
     const eventTitle = event ? event.title : 'Event';
     const eventVenue = event ? event.venue : 'Venue';
     const eventTime = event ? event.time : '';
+    const eventSchedule = event?.date
+      ? `${formatEventDate(event.date)}${eventTime ? ` · ${eventTime}` : ''}`
+      : eventTime;
     const regDate = new Date(reg.registeredAt).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -407,24 +460,22 @@ export function renderMyRegistrationsList(container, onCancelCallback) {
     });
 
     listHTML += `
-      <div class="my-reg-item" id="reg-item-${reg.id}">
+      <div class="my-reg-item" id="reg-item-${escapeHTML(reg.id)}">
         <div class="my-reg-item__main">
-          <div class="my-reg-item__title">${eventTitle}</div>
+          <div class="my-reg-item__title">${escapeHTML(eventTitle)}</div>
           <div class="my-reg-item__meta mono">
-            <span>📅 ${eventTime}</span>
-            <span>📍 ${eventVenue.split(',')[0]}</span>
+            <span>📅 ${escapeHTML(eventSchedule)}</span>
+            <span>📍 ${escapeHTML(eventVenue)}</span>
           </div>
           <div class="my-reg-item__sub mono">
-            ID: ${reg.id} &bull; Booked on ${regDate}
+            ID: ${escapeHTML(reg.id)} &bull; Booked on ${regDate}
           </div>
         </div>
         <button
           type="button"
           class="btn btn-secondary btn-cancel-reg"
-          data-registration-id="${reg.id}"
-          data-event-id="${reg.eventId}"
-          aria-label="Cancel registration for ${eventTitle}"
-          style="color: var(--danger); border-color: rgba(255, 92, 122, 0.4); font-size: var(--fs-xs); padding: 0.45rem 0.85rem;"
+          data-registration-id="${escapeHTML(reg.id)}"
+          aria-label="Cancel registration for ${escapeHTML(eventTitle)}"
         >
           Cancel
         </button>
@@ -473,15 +524,13 @@ export function cancelUserRegistration(registrationId, onUpdateCallback) {
 export function openMyRegistrationsModal(onUpdateCallback) {
   const modal = document.getElementById('my-registrations-modal');
   const content = document.getElementById('my-registrations-content');
-  if (!modal || !content) return;
+  if (!modal || !content || modal.open) return;
 
-  lastActiveElementBeforeModal = document.activeElement;
+  lastRegistrationsTrigger = document.activeElement;
 
   content.innerHTML = `
     <div class="modal-header">
-      <div style="display: flex; align-items: center; gap: var(--space-2);">
-        <h2 id="my-registrations-title" class="modal-title">My Registered Events</h2>
-      </div>
+      <h2 id="my-registrations-title" class="modal-title">My Registered Events</h2>
       <button type="button" class="btn-modal-close" id="my-regs-close-btn" aria-label="Close dialog">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -489,7 +538,7 @@ export function openMyRegistrationsModal(onUpdateCallback) {
         </svg>
       </button>
     </div>
-    <div id="my-regs-body" style="padding: var(--space-5); max-height: 70vh; overflow-y: auto;">
+    <div id="my-regs-body" class="my-registrations-body">
       <!-- Populated via renderMyRegistrationsList -->
     </div>
   `;
@@ -507,10 +556,13 @@ export function openMyRegistrationsModal(onUpdateCallback) {
   closeBtn?.focus();
   closeBtn?.addEventListener('click', closeMyRegistrationsModal);
 
-  modal.addEventListener('cancel', (e) => {
-    e.preventDefault();
-    closeMyRegistrationsModal();
-  });
+  if (modal.dataset.cancelHandlerBound !== 'true') {
+    modal.dataset.cancelHandlerBound = 'true';
+    modal.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      closeMyRegistrationsModal();
+    });
+  }
 }
 
 /**
@@ -525,8 +577,6 @@ export function closeMyRegistrationsModal() {
       modal.removeAttribute('open');
     }
   }
-  if (lastActiveElementBeforeModal && typeof lastActiveElementBeforeModal.focus === 'function') {
-    lastActiveElementBeforeModal.focus();
-    lastActiveElementBeforeModal = null;
-  }
+  restoreModalFocus(lastRegistrationsTrigger);
+  lastRegistrationsTrigger = null;
 }
