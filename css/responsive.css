@@ -95,8 +95,27 @@
   .modal-dialog {
     width: 100%;
     height: 100vh;
+    height: 100dvh;
     max-height: 100vh;
+    max-height: 100dvh;
     border-radius: 0;
+  }
+
+  .modal-body {
+    height: 100%;
+    max-height: 100dvh;
+  }
+
+  .modal-content-body {
+    padding: var(--space-4);
+  }
+
+  .modal-header {
+    padding: var(--space-4);
+  }
+
+  .modal-title {
+    font-size: var(--fs-base);
   }
 }
 
@@ -141,6 +160,7 @@
     max-width: 600px;
     height: auto;
     max-height: 90vh;
+    max-height: 90dvh;
     border-radius: var(--radius-lg);
   }
 }

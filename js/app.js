@@ -1,6 +1,6 @@
 /**
- * Main Application Bootstrapper (Phase 1 Baseline)
- * Initializes theme, mobile navigation, and global header registration counts.
+ * Main Application Bootstrapper (Phase 2)
+ * Coordinates theme, mobile navigation, event presentation, and detail modal dialogs.
  */
 
 import {
@@ -8,6 +8,14 @@ import {
   getStoredTheme,
   setStoredTheme
 } from './storage.js';
+
+import {
+  getAllEventsWithCapacity,
+  renderEventsGrid,
+  renderHeroSpotlight,
+  openEventModal,
+  closeEventModal
+} from './events.js';
 
 /**
  * Initializes and manages Dark / Light color theme via data-theme attribute (DESIGN.md Section 7).
@@ -139,6 +147,101 @@ export function updateHeaderRegistrationCount() {
 }
 
 /**
+ * Initializes and populates events across Hero Spotlight, Featured Grid, and All Events Grid.
+ */
+export function initEventsDisplay() {
+  const allEvents = getAllEventsWithCapacity();
+
+  // 1. Hero spotlight (upcoming featured events)
+  const spotlightContainer = document.getElementById('hero-spotlight');
+  const featuredEvents = allEvents
+    .filter((event) => event.featured)
+    .sort((first, second) => new Date(first.date) - new Date(second.date));
+  const upcomingFeaturedEvents = featuredEvents.filter((event) => new Date(event.date).getTime() >= Date.now());
+  const spotlightEvents = upcomingFeaturedEvents.length ? upcomingFeaturedEvents : featuredEvents;
+  const spotlightEvent = spotlightEvents[0] || allEvents[0];
+  if (spotlightContainer && spotlightEvent) {
+    const carouselEvents = spotlightEvents.length ? spotlightEvents : [spotlightEvent];
+    renderHeroSpotlight(spotlightEvent, spotlightContainer, carouselEvents, 0);
+    spotlightContainer.setAttribute('aria-label', 'Featured event spotlight');
+    spotlightContainer.setAttribute('aria-live', 'polite');
+    spotlightContainer.addEventListener('click', (event) => {
+      const control = event.target.closest('[data-spotlight-action], [data-spotlight-index]');
+      if (!control) return;
+
+      const currentIndex = Number(spotlightContainer.dataset.activeSpotlightIndex) || 0;
+      const nextIndex = control.hasAttribute('data-spotlight-index')
+        ? Number(control.dataset.spotlightIndex)
+        : (currentIndex + (control.dataset.spotlightAction === 'next' ? 1 : -1) + carouselEvents.length) % carouselEvents.length;
+      const boundedIndex = Math.max(0, Math.min(nextIndex, carouselEvents.length - 1));
+
+      renderHeroSpotlight(carouselEvents[boundedIndex], spotlightContainer, carouselEvents, boundedIndex);
+      if (control.hasAttribute('data-spotlight-index')) {
+        spotlightContainer.querySelector(`[data-spotlight-index="${boundedIndex}"]`)?.focus();
+      } else {
+        spotlightContainer.querySelector(`[data-spotlight-action="${control.dataset.spotlightAction}"]`)?.focus();
+      }
+    });
+  }
+
+  // 2. Featured Events Section
+  const featuredContainer = document.getElementById('featured-grid');
+  if (featuredContainer) {
+    renderEventsGrid(featuredEvents, featuredContainer);
+  }
+
+  // 3. All Events Section
+  const allEventsContainer = document.getElementById('events-grid');
+  const eventsCountLabel = document.getElementById('events-count-label');
+  if (allEventsContainer) {
+    renderEventsGrid(allEvents, allEventsContainer);
+  }
+  if (eventsCountLabel) {
+    eventsCountLabel.textContent = `Explore ${allEvents.length} scheduled events across Technology, Music & Arts, Business & Networking, and Sports & Fitness`;
+  }
+}
+
+/**
+ * Binds event delegation for opening and closing event detail modal dialogs.
+ */
+function initModalListeners() {
+  const eventModal = document.getElementById('event-modal');
+
+  // Delegated click handling for "Details" and "Register" buttons across all cards
+  document.addEventListener('click', (e) => {
+    const button = e.target.closest('.btn-event-details, .btn-event-register');
+    if (!button) return;
+
+    const eventId = button.dataset.eventId;
+    if (eventId) {
+      openEventModal(eventId);
+    }
+  });
+
+  if (eventModal) {
+    // Backdrop click dismisses dialog
+    eventModal.addEventListener('click', (e) => {
+      const rect = eventModal.getBoundingClientRect();
+      const isInDialog = (
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom
+      );
+      if (!isInDialog) {
+        closeEventModal();
+      }
+    });
+
+    // Native cancel event on Escape
+    eventModal.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      closeEventModal();
+    });
+  }
+}
+
+/**
  * Handles the newsletter mock submission.
  */
 function initNewsletter() {
@@ -171,10 +274,12 @@ function initNewsletter() {
   });
 }
 
-// Bootstrap Phase 1 foundation on DOM content loaded
+// Bootstrap application on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initMobileNav();
   updateHeaderRegistrationCount();
+  initEventsDisplay();
+  initModalListeners();
   initNewsletter();
 });
