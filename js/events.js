@@ -5,6 +5,11 @@
  */
 
 import { getRegistrationsByEvent } from './storage.js';
+import {
+  renderSpotlightCountdownHTML,
+  renderCardCountdownHTML,
+  renderModalCountdownHTML
+} from './countdown.js';
 
 /**
  * Canonical Sample Events List (AGENTS.md Data Model)
@@ -263,6 +268,7 @@ export function renderEventCard(event) {
         </svg>
         <span>${event.venue}</span>
       </div>
+      ${event.featured ? renderCardCountdownHTML(event.date) : ''}
       <h3 id="card-title-${event.id}" class="event-card__title">${event.title}</h3>
       <p class="event-card__desc">${event.shortDescription}</p>
       <div class="event-card__footer">
@@ -351,6 +357,7 @@ export function renderHeroSpotlight(event, container, featuredEvents = [event], 
         </div>
         <h2 id="spotlight-title" class="event-card__title spotlight-card__title">${event.title}</h2>
         <p class="event-card__desc spotlight-card__description">${event.shortDescription}</p>
+        ${renderSpotlightCountdownHTML(event.date)}
         <div class="spotlight-navigation" aria-label="Featured event navigation">
           <button type="button" class="slider-arrow-btn" data-spotlight-action="previous" aria-label="Previous featured event">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
@@ -412,6 +419,7 @@ export function openEventModal(eventId) {
     </div>
 
     <div class="modal-content-body">
+      ${renderModalCountdownHTML(event.date)}
       <dl class="event-detail-meta">
         <div class="event-detail-meta__item">
           <dt>Date</dt>

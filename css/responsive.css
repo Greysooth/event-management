@@ -170,6 +170,31 @@
     text-align: right;
     font-size: var(--fs-xs);
   }
+
+  /* Countdown Mobile Polish */
+  .countdown-blocks {
+    justify-content: space-between;
+    gap: var(--space-1);
+  }
+
+  .countdown-block {
+    min-width: 44px;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .countdown-val {
+    font-size: var(--fs-base);
+  }
+
+  .countdown-colon {
+    font-size: var(--fs-base);
+  }
+
+  .modal-countdown-strip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
 }
 
 /* --------------------------------------------------------------------------

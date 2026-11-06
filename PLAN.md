@@ -462,43 +462,43 @@ Registration: { id, eventId, name, email, phone, registeredAt }
 - [x] **Sort Dropdown**: Sorting by "Date: Soonest First" orders events chronologically; "Capacity: Most Available" orders by derived spots remaining.
 
 ### 6.3 Event Details Modal & Live Countdown Timers [Bonus]
-- [ ] **Detail Modal**:
+- [x] **Detail Modal**:
   - Clicking "Details" opens the native `<dialog>` showing image, title, category, venue-local date/time with timezone, description, and derived capacity.
   - `Escape` key closes the dialog; focus returns to the triggering button.
-- [ ] **Countdown Timer**:
+- [x] **Countdown Timer**:
   - Hero spotlight timer decrements seconds live in real time.
   - Featured cards display live countdowns.
 
 ### 6.4 Registration Form, Validation & Duplicate Handling
-- [ ] **Empty Form**: Submitting empty form highlights fields in red with specific error messages.
-- [ ] **Name Field**: "A" fails (min 2 chars); numbers fail; "Jane Doe" passes.
-- [ ] **Email Field**: "user@domain" fails without TLD; "jane@example.com" passes.
-- [ ] **Phone Field**: "123" fails (must have 10-15 digits); "+1 (555) 234-5678" passes.
-- [ ] **Duplicate Check**: Submitting a registration with an email already registered for that event displays duplicate error message.
-- [ ] **Derived Capacity & Sold Out**:
+- [x] **Empty Form**: Submitting empty form highlights fields in red with specific error messages.
+- [x] **Name Field**: "A" fails (min 2 chars); numbers fail; "Jane Doe" passes.
+- [x] **Email Field**: "user@domain" fails without TLD; "jane@example.com" passes.
+- [x] **Phone Field**: "123" fails (must have 10-15 digits); "+1 (555) 234-5678" passes.
+- [x] **Duplicate Check**: Submitting a registration with an email already registered for that event displays duplicate error message.
+- [x] **Derived Capacity & Sold Out**:
   - Submitting registration decrements remaining spots immediately in the grid and modal.
   - If capacity reaches 0, button turns disabled with "Sold Out" text.
 
 ### 6.5 Confirmation Modal & "My Registrations" [Bonus]
-- [ ] **Confirmation**: Successful registration displays confirmation modal with checkmark animation, attendee name, event details, and unique `reg-...` ID.
-- [ ] **My Registrations Drawer**:
+- [x] **Confirmation**: Successful registration displays confirmation modal with checkmark animation, attendee name, event details, and unique `reg-...` ID.
+- [x] **My Registrations Drawer**:
   - Displays registered events stored in `localStorage`.
   - Clicking "Cancel Registration" removes the record from `localStorage` and instantly restores derived capacity in the event grid.
-- [ ] **Demo Mode Banner**: Subtle banner visible reminding the user that registrations are stored locally in the browser.
+- [x] **Demo Mode Banner**: Subtle banner visible reminding the user that registrations are stored locally in the browser.
 
 ### 6.6 Dark / Light Mode [Bonus]
-- [ ] **Theme Toggle**: Clicking toggle switches color theme with smooth transitions.
-- [ ] **Persistence**: Refreshing the page preserves the selected theme from `localStorage`.
-- [ ] **System Default**: If no stored preference, respects `prefers-color-scheme`.
+- [x] **Theme Toggle**: Clicking toggle switches color theme with smooth transitions.
+- [x] **Persistence**: Refreshing the page preserves the selected theme from `localStorage`.
+- [x] **System Default**: If no stored preference, respects `prefers-color-scheme`.
 
 ### 6.7 Accessibility & Code Quality
-- [ ] Semantic HTML5 elements (`<header>`, `<nav>`, `<main>`, `<dialog>`, `<footer>`).
-- [ ] All images have descriptive `alt` text.
-- [ ] All inputs have associated `<label>` tags and `aria-describedby` for error states.
-- [ ] Visible focus rings on all interactive elements via `:focus-visible`.
-- [ ] Reduced motion: `prefers-reduced-motion` suppresses transitions and keyframe animations.
-- [ ] Zero global variables; all JS modules use small functions and named exports.
-- [ ] Browser console has 0 errors or uncaught exceptions across all user flows.
+- [x] Semantic HTML5 elements (`<header>`, `<nav>`, `<main>`, `<dialog>`, `<footer>`).
+- [x] All images have descriptive `alt` text.
+- [x] All inputs have associated `<label>` tags and `aria-describedby` for error states.
+- [x] Visible focus rings on all interactive elements via `:focus-visible`.
+- [x] Reduced motion: `prefers-reduced-motion` suppresses transitions and keyframe animations.
+- [x] Zero global variables; all JS modules use small functions and named exports.
+- [x] Browser console has 0 errors or uncaught exceptions across all user flows.
 
 ### 6.8 Deployment & URL Pathing Verification
 - [ ] All paths in HTML/CSS/JS are repository-relative (`./css/style.css`, `./js/app.js`, etc.).

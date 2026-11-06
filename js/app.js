@@ -37,6 +37,11 @@ import {
   updateResultsCount
 } from './filters.js';
 
+import {
+  initCountdownEngine,
+  updateAllCountdowns
+} from './countdown.js';
+
 /**
  * Initializes and manages Dark / Light color theme via data-theme attribute (DESIGN.md Section 7).
  */
@@ -73,6 +78,8 @@ function initTheme() {
     themeToggleBtn.addEventListener('click', () => {
       const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
       const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      themeToggleBtn.classList.add('theme-toggle--rotating');
+      setTimeout(() => themeToggleBtn.classList.remove('theme-toggle--rotating'), 400);
       applyTheme(newTheme);
       setStoredTheme(newTheme);
     });
@@ -196,6 +203,7 @@ export function initEventsDisplay() {
       const boundedIndex = Math.max(0, Math.min(nextIndex, carouselEvents.length - 1));
 
       renderHeroSpotlight(carouselEvents[boundedIndex], spotlightContainer, carouselEvents, boundedIndex);
+      updateAllCountdowns();
       if (control.hasAttribute('data-spotlight-index')) {
         spotlightContainer.querySelector(`[data-spotlight-index="${boundedIndex}"]`)?.focus();
       } else {
@@ -212,6 +220,37 @@ export function initEventsDisplay() {
 
   // 3. All Events Section (delegated to search, filter & sort manager)
   renderFilteredEvents();
+  initCardEntranceAnimation();
+  updateAllCountdowns();
+}
+
+/**
+ * Observes event cards and applies a staggered entrance animation.
+ * Respects prefers-reduced-motion.
+ */
+export function initCardEntranceAnimation() {
+  const cards = document.querySelectorAll('.event-card:not(.is-visible)');
+  if (!cards || cards.length === 0) return;
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+    cards.forEach((card) => card.classList.add('is-visible'));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach((entry, idx) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('is-visible');
+        }, idx * 60);
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  cards.forEach((card) => observer.observe(card));
 }
 
 /**
@@ -234,6 +273,8 @@ export function renderFilteredEvents() {
     } else {
       if (emptyStateEl) emptyStateEl.classList.add('hidden');
       renderEventsGrid(filteredEvents, allEventsContainer);
+      initCardEntranceAnimation();
+      updateAllCountdowns();
     }
   }
 
@@ -448,4 +489,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initFilters(() => {
     renderFilteredEvents();
   });
+
+  // Start live countdown engine & card animations (Phase 5)
+  initCountdownEngine();
+  initCardEntranceAnimation();
 });

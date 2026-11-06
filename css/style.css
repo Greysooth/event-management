@@ -1118,6 +1118,26 @@ h6 {
    Modal Dialogs (DESIGN.md Section 7)
    ========================================================================== */
 
+@keyframes modalSpringIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .modal-dialog {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -1132,10 +1152,18 @@ h6 {
   transition: transform var(--dur-base) var(--ease-spring), opacity var(--dur-base) ease;
 }
 
+.modal-dialog[open] {
+  animation: modalSpringIn var(--dur-base) var(--ease-spring);
+}
+
 .modal-dialog::backdrop {
   background-color: rgba(11, 11, 26, 0.75);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+}
+
+.modal-dialog[open]::backdrop {
+  animation: backdropFadeIn var(--dur-base) ease;
 }
 
 .modal-header-content {
@@ -1493,12 +1521,22 @@ h6 {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: transform var(--dur-base) var(--ease-spring), border-color var(--dur-base) ease, box-shadow var(--dur-base) ease;
+  transition: transform var(--dur-base) var(--ease-spring), border-color var(--dur-base) ease, box-shadow var(--dur-base) ease, opacity var(--dur-slow) ease;
   position: relative;
+  opacity: 0;
+  transform: translateY(16px);
 }
 
-.event-card:hover,
-.event-card:focus-within {
+.event-card.is-visible,
+.spotlight-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.event-card.is-visible:hover,
+.event-card.is-visible:focus-within,
+.spotlight-card:hover,
+.spotlight-card:focus-within {
   transform: translateY(-6px);
   border-color: var(--primary);
   box-shadow: var(--shadow-md);
@@ -2055,6 +2093,196 @@ h6 {
 .my-registrations-empty {
   text-align: center;
   padding: var(--space-6) var(--space-4);
+}
+
+/* ==========================================================================
+   Countdown Engine Styles (Phase 5 Bonus - DESIGN.md Section 5 & 7)
+   ========================================================================== */
+
+/* Hero Spotlight Structured Countdown */
+.spotlight-countdown {
+  background: rgba(11, 11, 26, 0.65);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.countdown-eyebrow {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.1em;
+  color: var(--accent-lime);
+  margin-bottom: var(--space-2);
+  font-weight: 600;
+}
+
+.countdown-blocks {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.countdown-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.6rem;
+  min-width: 52px;
+}
+
+.countdown-val {
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.countdown-unit {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.countdown-colon {
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--primary);
+  margin-top: -8px;
+}
+
+/* Card Countdown Chip (Featured Grid) */
+.card-countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background-color: rgba(11, 11, 26, 0.75);
+  border: 1px solid rgba(109, 74, 255, 0.35);
+  border-radius: var(--radius-pill);
+  padding: 0.25rem 0.75rem;
+  font-size: var(--fs-xs);
+  color: var(--accent-cyan);
+  margin-bottom: var(--space-2);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.countdown-icon {
+  color: var(--accent-pink);
+  font-size: 0.85rem;
+}
+
+.countdown-chip-text {
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+}
+
+/* Modal Countdown Strip */
+.modal-countdown-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  background: linear-gradient(90deg, rgba(109, 74, 255, 0.12), rgba(255, 77, 157, 0.12));
+  border: 1px solid rgba(109, 74, 255, 0.3);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  font-size: var(--fs-xs);
+  color: var(--text);
+}
+
+.modal-countdown-label {
+  color: var(--accent-cyan);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.modal-countdown-timer {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--accent-lime);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.05em;
+}
+
+/* Live Event Indicator Pulse */
+@keyframes pulseDot {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.6;
+  }
+}
+
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--accent-lime);
+  animation: pulseDot 1.5s infinite;
+}
+
+.live-pulse-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--accent-lime);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+/* Theme Toggle Rotating Animation (DESIGN.md Section 5) */
+.theme-toggle--rotating svg {
+  transform: rotate(180deg);
+  transition: transform var(--dur-base) var(--ease-spring);
+}
+
+/* Light Theme Countdown Overrides */
+[data-theme="light"] .spotlight-countdown {
+  background: rgba(240, 238, 255, 0.9);
+  border-color: var(--border);
+}
+
+[data-theme="light"] .countdown-eyebrow {
+  color: var(--primary);
+}
+
+[data-theme="light"] .card-countdown {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: var(--primary);
+  border-color: var(--border);
+}
+
+[data-theme="light"] .modal-countdown-strip {
+  background: linear-gradient(90deg, rgba(91, 53, 242, 0.08), rgba(255, 77, 157, 0.08));
+  border-color: var(--border);
+}
+
+[data-theme="light"] .modal-countdown-label {
+  color: var(--primary);
+}
+
+[data-theme="light"] .modal-countdown-timer {
+  color: var(--primary);
 }
 
 /* ==========================================================================
