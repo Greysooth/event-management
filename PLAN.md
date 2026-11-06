@@ -7,7 +7,7 @@
 - [x] Phase 3: Search, Filters & Sorting (Real-time search, category pills, sort dropdown, empty state)
 - [x] Phase 4: Registration, Form Validation & Local Storage Management (Full a11y, duplicate checks, derived capacity)
 - [x] Phase 5: Bonus Features & Polish (Dark/Light mode switch, live countdown timers, micro-animations)
-- [ ] Phase 6: Testing, Documentation & Vercel/GitHub Pages Deployment
+- [x] Phase 6: Testing, Documentation & Vercel/GitHub Pages Deployment
 
 ---
 
@@ -500,6 +500,6 @@ Registration: { id, eventId, name, email, phone, registeredAt }
 - [x] Browser console has 0 errors or uncaught exceptions across all user flows.
 
 ### 6.8 Deployment & URL Pathing Verification
-- [ ] All paths in HTML/CSS/JS are repository-relative (`./css/style.css`, `./js/app.js`, etc.).
-- [ ] Local testing conducted via HTTP server (`npx serve .` or `python -m http.server 8000`) with zero CORS errors on ES modules.
-- [ ] Production deployment on Vercel loads all assets and modules with zero 404s.
+- [x] All paths in HTML/CSS/JS are repository-relative (`./css/style.css`, `./js/app.js`, etc.).
+- [x] Local testing conducted via HTTP server (`npx serve .` or `python -m http.server 8000`) with zero CORS errors on ES modules.
+- [x] Production deployment on Vercel loads all assets and modules with zero 404s.
