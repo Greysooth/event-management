@@ -21,23 +21,54 @@
   - **Demo Limits**: Data is local to each visitor's browser and device. It is not shared across visitors and does not prevent concurrent overbooking across different machines. A subtle badge in the UI clearly indicates: `"Demo Mode: Registrations are saved locally on this browser"`.
   - **Storage Adapter**: The synchronous browser-storage adapter (`js/storage.js`) provides named functions for registration and theme persistence. A future network-backed implementation would require callers to adopt asynchronous handling.
 
-### 1.2 Design Direction & Theme Tokens
-- **Style**: Modern, vibrant high-contrast interface featuring subtle glassmorphism (`backdrop-filter: blur(12px)`), card elevation with hover micro-interactions (`translateY(-4px)`), clean border radii (`8px` to `16px`), and high-contrast accessible typography.
-- **2 Google Fonts**:
-  1. **Heading / Display Font**: `Plus Jakarta Sans` (`sans-serif`, weights: 600, 700, 800) — Bold, geometric, modern.
-  2. **Body & UI Font**: `Inter` (`sans-serif`, weights: 400, 500, 600) — Exceptionally readable at all viewport sizes; robust tabular numbers for timers.
-- **Color Palette (with Hex Values)**:
-  - **Brand Primary**: `#4F46E5` (Indigo 600) | **Hover**: `#4338CA` (Indigo 700)
-  - **Secondary / Accent**: `#06B6D4` (Cyan 500) | **Hover**: `#0891B2` (Cyan 600)
-  - **Success**: `#10B981` (Emerald 500) — Registration confirmed, available capacity
-  - **Warning**: `#F59E0B` (Amber 500) — Filling fast / featured badge
-  - **Danger / Error**: `#EF4444` (Rose 500) — Validation errors, sold out badge
-  - **Light Mode Surface**:
-    - Background: `#F8FAFC` (Slate 50) | Surface: `#FFFFFF` (White) | Elevated: `#F1F5F9` (Slate 100)
-    - Borders: `#E2E8F0` (Slate 200) | Text Primary: `#0F172A` (Slate 900) | Text Muted: `#64748B` (Slate 500)
-  - **Dark Mode Surface (`.dark`) [Bonus]**:
-    - Background: `#0B0F19` (Obsidian) | Surface: `#151E2E` (Navy Slate) | Elevated: `#1E293B` (Slate 700)
-    - Borders: `#283548` (Slate 600) | Text Primary: `#F8FAFC` (Slate 50) | Text Muted: `#94A3B8` (Slate 400)
+### 1.2 Design Direction & Theme Tokens (Follows DESIGN.md)
+- **Mood**: Playful + techy ("hackathon meets festival"): dark, glowing, neon-accented interface with rounded shapes, monospace details, and bouncy micro-interactions.
+- **Personality Keywords**: energetic, curious, friendly, futuristic, a little cheeky.
+- **Google Fonts**:
+  1. **Headings**: `Space Grotesk` (600, 700) (`system-ui, sans-serif`)
+  2. **Body**: `Inter` (400, 500, 600) (`system-ui, sans-serif`)
+  3. **Labels, Dates, Tags & Countdowns**: `JetBrains Mono` (500) (`ui-monospace, monospace`)
+- **Color Tokens (DESIGN.md Spec)**:
+  - **Dark Theme (Default `:root`)**:
+    - Page Background (`--bg`): `#0B0B1A`
+    - Elevated Surface / Nav (`--bg-elevated`): `#13132B`
+    - Cards / Modal / Inputs (`--surface`): `#1A1A38`
+    - Card Hover Surface (`--surface-hover`): `#222247`
+    - Borders & Dividers (`--border`): `#2E2E5C`
+    - Primary Text (`--text`): `#F4F4FF`
+    - Secondary Text (`--text-muted`): `#A3A3C8`
+    - Primary Action (`--primary`): `#6D4AFF` (Electric violet) | Hover: `#8467FF`
+    - Text on Primary (`--on-primary`): `#FFFFFF`
+    - Accent Lime (`--accent-lime`): `#C6FF3D` | Text on Lime (`--on-lime`): `#0B0B1A`
+    - Accent Pink (`--accent-pink`): `#FF4D9D`
+    - Accent Cyan (`--accent-cyan`): `#22E1FF`
+    - Success (`--success`): `#2EE59D`
+    - Danger / Error (`--danger`): `#FF5C7A`
+  - **Light Theme (`[data-theme="light"]`)**:
+    - Page Background (`--bg`): `#F7F6FF`
+    - Elevated Surface (`--bg-elevated`): `#FFFFFF`
+    - Surface (`--surface`): `#FFFFFF`
+    - Card Hover Surface (`--surface-hover`): `#F0EEFF`
+    - Borders (`--border`): `#DAD6F5`
+    - Primary Text (`--text`): `#14132B`
+    - Secondary Text (`--text-muted`): `#5B5A7A`
+    - Primary Action (`--primary`): `#5B35F2` | Hover: `#6D4AFF`
+    - Success (`--success`): `#0FA86B`
+    - Danger (`--danger`): `#D92D50`
+  - **Gradients**:
+    - `--gradient-brand`: `linear-gradient(135deg, #6D4AFF 0%, #FF4D9D 100%)`
+    - `--gradient-tech`: `linear-gradient(135deg, #22E1FF 0%, #6D4AFF 100%)`
+    - `--gradient-glow`: `radial-gradient(circle at 50% 0%, rgba(109,74,255,.35), transparent 60%)`
+  - **Category Colors**:
+    - Tech: `--accent-cyan` | Music: `--accent-pink` | Workshop: `--accent-lime` | Sports: `--success` | Social: `#FFB020`
+- **Spacing, Radius & Shadows**:
+  - Spacing (8px grid): `--space-1` (0.25rem) through `--space-9` (6rem)
+  - Radius: `--radius-sm` (8px), `--radius-md` (14px), `--radius-lg` (22px), `--radius-pill` (999px)
+  - Glows: `--glow-primary`, `--glow-lime`, `--shadow-sm`, `--shadow-md`
+- **Motion**:
+  - Springs: `--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1)`, `--ease-out: cubic-bezier(0.22, 1, 0.36, 1)`
+  - Durations: `--dur-fast: 150ms`, `--dur-base: 250ms`, `--dur-slow: 500ms`
+  - Focus Ring: `2px solid var(--accent-cyan)` with `3px` offset
 
 ---
 

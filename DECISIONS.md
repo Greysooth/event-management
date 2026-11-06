@@ -98,3 +98,33 @@ This document records architectural, data model, and implementation decisions fo
   - The newsletter subscription is defined as an accessible interactive mock.
   - On submit, it validates the email format. If valid, it displays an accessible transient notification ("Thank you for subscribing to event alerts!") and clears the input without reloading the page.
 - **Consequences**: Eliminates dead buttons and ensures every interactive control provides clear user feedback.
+
+---
+
+## ADR 10: Design Category Labels Match the Event Model
+- **Context**: The visual design category list used labels that differed from the required `Event.category` values, which could lead to inconsistent filters and badges.
+- **Decision**: Use `Technology`, `Music & Arts`, `Business & Networking`, and `Sports & Fitness` in the design category palette and visible category labels. Existing accent tokens are mapped to these categories without changing the event data model.
+- **Consequences**: Design labels, event records, and future filter controls share the same category names.
+
+---
+
+## ADR 10: Adoption of DESIGN.md Specification
+- **Context**: `DESIGN.md` defines the strict visual and design token specification for the event management platform ("hackathon meets festival": dark, glowing, neon-accented interface with rounded shapes and monospace details).
+- **Decision**:
+  - Adopt all tokens from `DESIGN.md` as the single source of truth for styling.
+  - **Theme Strategy**: Dark-first by default on `:root` (`--bg: #0B0B1A`). Light theme is activated via `[data-theme="light"]` on the root `<html>` element.
+  - **Typography**: Google Fonts loaded are **Space Grotesk** (600, 700) for headings, **Inter** (400, 500, 600) for body, and **JetBrains Mono** (500) for dates, countdowns, badges, and metadata labels.
+  - **Focus States**: High-contrast outline `2px solid var(--accent-cyan)` with `3px` offset.
+  - **Token Compliance**: All UI work uses only tokens defined in `DESIGN.md`.
+- **Consequences**: Consistent, vibrant, high-impact aesthetic meeting all accessibility and contrast requirements.
+
+---
+
+## ADR 11: Editorial Patterns & UI Inspiration from design-refs
+- **Context**: The user provided screenshots in `design-refs` featuring a high-end editorial gallery/event aesthetic (`NM ART & DESIGN`).
+- **Decision**:
+  - **Hero Feature Showcase**: Implement a segmented progress/pagination dash indicator under the hero spotlight (from `Screenshot 183901` and `183945`), allowing quick visual jumping across featured highlights with arrow navigation (`← →`).
+  - **Event Card Framing**: Fixed 16:10 aspect ratio with overlaid date chips in mono and category tags, paired with clean typography hierarchy (artist/organizer, venue, short summary, spots counter in mono).
+  - **Modal / Registration Drawer Architecture**: Inspired by `Screenshot 183913`, the registration modal features a top "Event Summary Strip" (mini thumbnail, event title, venue, and date badge) directly above the form fields, giving users clear context of what they are registering for.
+  - **Form Input Styling**: Clean, high-legibility input rows with clear focus glow, validation feedback, and full-width primary CTA button.
+- **Consequences**: Elevated UI/UX that blends the playful neon tech aesthetic of `DESIGN.md` with the refined editorial structure of the design references.

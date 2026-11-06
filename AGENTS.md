@@ -26,6 +26,7 @@ If a task needs a change outside your files, stop and
 tell me instead of making it.
 Keep modules small; export named functions; no global variables.
 Semantic HTML, alt text on images, labels on all inputs, visible focus states (accessibility counts).
+All UI work must follow DESIGN.md. Use only its tokens; if you need a new one, add it to DESIGN.md and tell me.
 
 ## Done means
 Works in the browser with no console errors, looks right at 375px, 768px, 1280px,
